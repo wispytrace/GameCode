@@ -12,6 +12,7 @@ class GameSimulation():
         self.epochs = None
 
         self.summary = None
+        
     
     def set_graph(self, graph):
         self.graph = graph
