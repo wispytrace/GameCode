@@ -1,4 +1,3 @@
-from sympy import *
 from graph import Node, Graph
 from game import Agent, Game, FixTime
 import numpy as np
@@ -43,8 +42,8 @@ class GameSimulation():
             for node_id, agent in self.graph.nodes.items():
                 agent.update(self.update_time)
 
-            if is_debug:
-                agent.record(self.update_time)
+                if is_debug:
+                    agent.record(self.update_time)
 
         if is_debug:
             self.show_process()
@@ -60,11 +59,13 @@ class GameSimulation():
             simulate_time = []
 
             for record in agent.records:
-                simulate_data[node_id].append(record['status_vector'][node_id])
+                print(record)
+                simulate_data[node_id].append(record['status_vector'][node_id][0])
                 # print(record['status_vector'][node_id])
                 simulate_time.append(record['time'])
-        
-        for i, node_id in enumerate(simulate_data):
+            print(simulate_data[node_id])
+            
+        for i, node_id in enumerate(simulate_data.keys()):
             plt.plot(simulate_time, simulate_data[node_id], color=mcolors.TABLEAU_COLORS[colors[i]], label=node_id)
                      
         plt.legend()

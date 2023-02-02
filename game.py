@@ -62,9 +62,9 @@ class Agent(object):
             current_record['time'] = 0
         else:
             current_record['time'] = time_delta + self.records[-1]['time']
-        current_record['status_vector'] = self.status_vector.copy()
-        current_record['estimate_vector'] = self.estimate_vector.copy()
-        current_record['others_vector'] = self.others_vector.copy()
+        current_record['status_vector'] = np.copy(self.status_vector)
+        current_record['estimate_vector'] = np.copy(self.estimate_vector)
+        current_record['others_vector'] = np.copy(self.others_vector.copy)
 
         self.records.append(current_record)
 
@@ -96,14 +96,14 @@ class FixTime(Game):
         p = 1
         q = 2
         s = 0.5
-        f = 20
+        f = 3
         
         status_sum = 0
         for id, status in agent.estimate_vector.items():
             status_sum += status
         
-        cost = p*((agent.estimate_vector[id]-q)**2) + (s*status_sum + f)* agent.estimate_vector[agent.id]
-
+        cost = p*((agent.estimate_vector[agent.id]-q)**2) + (s*status_sum + f)* agent.estimate_vector[agent.id]
+        
         return cost
     
     @staticmethod
@@ -116,9 +116,7 @@ class FixTime(Game):
         agent.estimate_vector[agent.id] -= delta
 
         partial = (cost_hat - cost) / delta
-
-        print(partial)
-
+        
         return partial
 
 
@@ -127,9 +125,16 @@ class FixTime(Game):
     def status_update_function(agent):
         p = 0.5
         q = 1.5
-        partial_value = FixTime.partial_cost(agent)
-        update_value = -(np.power(partial_value, p) + np.power(partial_value, q) + partial_value)
+        step_size = 1e-6
+        partial_value = FixTime.partial_cost(agent)[0]
+        if partial_value < 0 :
+            update_value = - (np.power(-partial_value, p) + np.power(-partial_value, q) + -partial_value)
+        else:
+            update_value = (np.power(partial_value, p) + np.power(partial_value, q) + partial_value)
 
+            
+        # print(update_value, "ssss")
+        
         return update_value
 
 
