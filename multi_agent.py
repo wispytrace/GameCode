@@ -60,9 +60,7 @@ class GameSimulation():
             simulate_time = []
 
             for record in agent.records:
-                print(record)
                 simulate_data[node_id].append(record['status_vector'][node_id][0])
-                # print(record['status_vector'][node_id])
                 simulate_time.append(record['time'])
             print(simulate_data[node_id])
             
@@ -79,11 +77,12 @@ class GameSimulation():
 
 if __name__ == '__main__':
     
-    matrix = [[1,1,0,1, 0],[1, 1, 1,0, 0], [1, 0, 1, 0, 1], [0,1,1,1, 0], [0, 1, 0, 1, 1]]
+    matrix = [[1,1,1,1],[1, 1, 1,1], [1, 1, 1, 1], [1,1,1,1]]
     graph = Graph.load_matrix(matrix)
+    graph.draw_graph()
     fixed = GameSimulation()
     fixed.set_graph(graph)
-    fixed.set_update_time(0.1)
+    fixed.set_update_time(0.01)
     fixed.load_game_model(FixTime)
-    fixed.set_epochs(10)
+    fixed.set_epochs(100)
     fixed.run()

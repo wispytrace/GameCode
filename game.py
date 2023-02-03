@@ -1,5 +1,6 @@
 import numpy as np
 from graph import Node
+from copy import deepcopy
 
 class Game:
 
@@ -62,9 +63,9 @@ class Agent(object):
             current_record['time'] = 0
         else:
             current_record['time'] = time_delta + self.records[-1]['time']
-        current_record['status_vector'] = np.copy(self.status_vector)
-        current_record['estimate_vector'] = np.copy(self.estimate_vector)
-        current_record['others_vector'] = np.copy(self.others_vector.copy)
+        current_record['status_vector'] = deepcopy(self.status_vector)
+        current_record['estimate_vector'] = deepcopy(self.estimate_vector)
+        current_record['others_vector'] = deepcopy(self.others_vector)
 
         self.records.append(current_record)
 
