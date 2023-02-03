@@ -30,7 +30,13 @@ class Agent(object):
         self.status_vector = {}
         self.estimate_vector = {}
         self.others_vector = {}
+        
+        self.status_vector_updated = {}
+        self.estimate_vector_updated = {}
+        self.others_vector_updated = {}
+        
         self.game = None
+        self.super_parameter = {}
         
         self.__node = node
 
@@ -44,16 +50,27 @@ class Agent(object):
         self.estimate_vector[self.id] = np.zeros(self.estimate_shape)
         self.others_vector[self.id] = np.zeros(self.others_shape)
 
-    def update(self, time_delta=0.1):
-
-        self.status_vector[self.id] += self.game.status_update_function(self) * time_delta
-        self.others_vector[self.id] += self.game.others_update_function(self) * time_delta
+    def update(self, time_delta=1e-4):
+        
+        self.status_vector_updated = deepcopy(self.status_vector)
+        self.estimate_vector_updated = deepcopy(self.estimate_vector)
+        self.others_vector_updated = deepcopy(self.others_vector)
+        
+        self.status_vector_updated[self.id] += self.game.status_update_function(self) * time_delta
+        self.others_vector_updated[self.id] += self.game.others_update_function(self) * time_delta
         
         esitimate_update = self.game.estimation_update_function(self)
         for id, value in esitimate_update.items():
-            if id not in self.estimate_vector.keys():
-                self.estimate_vector[id] = np.zeros(self.estimate_shape)
-            self.estimate_vector[id] += value * time_delta
+            if id not in self.estimate_vector_updated.keys():
+                self.estimate_vector_updated[id] = np.zeros(self.estimate_shape)
+            self.estimate_vector_updated[id] += value * time_delta
+                    
+    def flush(self):
+        
+        self.status_vector = self.status_vector_updated
+        self.estimate_vector = self.estimate_vector_updated
+        self.others_vector = self.others_vector_updated
+    
     
     def record(self, time_delta=0.1):
 
@@ -82,6 +99,10 @@ class Agent(object):
 
 class FixTime(Game):
 
+    
+    
+    
+    
     @staticmethod
     def get_data_shape():
         
@@ -91,51 +112,77 @@ class FixTime(Game):
 
         return status_vetcor_shape, estimate_vector_shape, other_vector_shape
 
-
+    @staticmethod
+    def set_agent_parameter(agent, param):
+        agent.super_parameter = param
+    
+    
     @staticmethod
     def cost_function(agent):
         p = 1
-        q = 2
-        s = 0.5
-        f = 3
+        q = 10.5
+        s = 1
+        f = 10
         
         status_sum = 0
         for id, status in agent.estimate_vector.items():
             status_sum += status
         
+        
         cost = p*((agent.estimate_vector[agent.id]-q)**2) + (s*status_sum + f)* agent.estimate_vector[agent.id]
         
+        # return (agent.estimate_vector[agent.id]-q)**2
         return cost
     
     @staticmethod
     def partial_cost(agent):
         
-        delta = 1e-4
-        cost = FixTime.cost_function(agent)
-        agent.estimate_vector[agent.id] += delta
-        cost_hat = FixTime.cost_function(agent)
-        agent.estimate_vector[agent.id] -= delta
+        # delta = 1e-4
+        # cost = FixTime.cost_function(agent)
+        # agent.estimate_vector[agent.id] += delta
+        # cost_hat = FixTime.cost_function(agent)
+        # agent.estimate_vector[agent.id] -= delta
 
-        partial = (cost_hat - cost) / delta
+        # partial = (cost_hat - cost) / delta
+        p = 1
+        q = 10.5
+        s = 1
+        f = 10
+        
+        
+        status_sum = 0
+        for id, status in agent.estimate_vector.items():
+            status_sum += status
+        
+        partial = 2*p*(agent.estimate_vector[agent.id]-q) + s*status_sum + f + s*agent.estimate_vector[agent.id]
+        
         
         return partial
-
 
 
     @staticmethod
     def status_update_function(agent):
         p = 0.5
         q = 1.5
-        step_size = 1e-6
-        partial_value = FixTime.partial_cost(agent)[0]
-        if partial_value < 0 :
-            update_value = - (np.power(-partial_value, p) + np.power(-partial_value, q) + -partial_value)
-        else:
-            update_value = (np.power(partial_value, p) + np.power(partial_value, q) + partial_value)
 
-            
-        # print(update_value, "ssss")
+        delta = agent.super_parameter['delta']
+        eta = agent.super_parameter['eta']
+        epsilon = agent.super_parameter['epsilon']
         
+        partial_value = FixTime.partial_cost(agent)[0]
+        
+        sign = None
+        if partial_value > 0:
+            sign = 1
+        else:
+            sign = -1
+        
+        partial_value_fabs = np.fabs(partial_value)
+            
+    
+        update_value = -(sign*delta*np.power(partial_value_fabs, p) + sign*eta*np.power(partial_value_fabs, q) + sign*epsilon*partial_value_fabs)
+
+                    
         return update_value
 
 
@@ -159,10 +206,24 @@ class FixTime(Game):
                     agent.estimate_vector[id] = 0
             
             update_value[in_agent.id] += agent.estimate_vector[in_agent.id] - in_agent.status_vector[in_agent.id]
-        
-        for id, value in update_value.items():
 
-           update_value[id] = -(np.power(update_value[id], p) + np.power( update_value[id], q) +  update_value[id])
+
+        delta = agent.super_parameter['delta']
+        eta = agent.super_parameter['eta']
+        epsilon = agent.super_parameter['epsilon']
+        
+                   
+        for id, value in update_value.items():
+            
+            update_value_fabs = np.fabs(value)
+            sign = None
+
+            if update_value[id] > 0:
+                sign = 1
+            else:
+                sign = -1
+            
+            update_value[id] = -1*sign*(delta*np.power(update_value_fabs, p) + eta*np.power(update_value_fabs, q) +  epsilon*update_value_fabs)
         
         return update_value
 

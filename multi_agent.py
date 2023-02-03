@@ -3,6 +3,8 @@ from game import Agent, Game, FixTime
 import numpy as np
 import matplotlib.pyplot as plt	
 import matplotlib.colors as mcolors
+from concurrent import futures
+import time
 
 class GameSimulation():
 
@@ -10,24 +12,28 @@ class GameSimulation():
         self.graph = None
         self.update_time = None
         self.epochs = None
-
+        self.max_works = 16
+        
         self.summary = None
         
-    
     def set_graph(self, graph):
         self.graph = graph
-
+        
     def set_epochs(self, epochs):
         self.epochs = epochs
 
     def set_update_time(self, time_delta):
         self.update_time = time_delta  
 
-    def load_game_model(self, game_model):
+    def load_game_model(self, game_model, paramas=None):
         
         agents = {}
         for node_id, node in self.graph.nodes.items():
             agent = Agent(node)
+            
+            if paramas is not None:
+                FixTime.set_agent_parameter(agent, paramas[agent.id])
+            
             agent.set_game(game_model)
             agents[node_id] = agent
         
@@ -37,14 +43,30 @@ class GameSimulation():
 
         self.graph.nodes = agents
     
-    def run(self, is_debug=True):
     
+    def run(self, is_debug=True):
+        
+        start = time.time()
+        agent_list = [agent for agent in self.graph.nodes.values()]
+        update_function = getattr(Agent, 'update')
+        # print((agent_list[0], self.update_time))
         for i in range(self.epochs):
+            
+            # with futures.ThreadPoolExecutor(min(len(agent_list), self.max_works)) as executor:
+            #     res = executor.map(update_function, agent_list, [self.update_time]*len(agent_list))
             for node_id, agent in self.graph.nodes.items():
                 agent.update(self.update_time)
-
+                
+            for node_id, agent in self.graph.nodes.items():
+                
                 if is_debug:
                     agent.record(self.update_time)
+                
+                agent.flush()
+
+        end = time.time()
+        
+        print("time: " ,end-start)
 
         if is_debug:
             self.show_process()
@@ -62,7 +84,6 @@ class GameSimulation():
             for record in agent.records:
                 simulate_data[node_id].append(record['status_vector'][node_id][0])
                 simulate_time.append(record['time'])
-            print(simulate_data[node_id])
             
         for i, node_id in enumerate(simulate_data.keys()):
             plt.plot(simulate_time, simulate_data[node_id], color=mcolors.TABLEAU_COLORS[colors[i]], label=node_id)
@@ -79,10 +100,16 @@ if __name__ == '__main__':
     
     matrix = [[1,1,1,1],[1, 1, 1,1], [1, 1, 1, 1], [1,1,1,1]]
     graph = Graph.load_matrix(matrix)
-    graph.draw_graph()
+    # graph.draw_graph()
     fixed = GameSimulation()
     fixed.set_graph(graph)
-    fixed.set_update_time(0.01)
-    fixed.load_game_model(FixTime)
-    fixed.set_epochs(100)
+    fixed.set_update_time(5e-5)
+    paramas = {
+        '0': {'delta': 2, 'eta': 1, 'epsilon': 3}, 
+        '1': {'delta': 3, 'eta': 1.5, 'epsilon': 2}, 
+        '2': {'delta': 4.5 , 'eta': 3, 'epsilon': 1}, 
+        '3': {'delta': 5, 'eta': 2, 'epsilon': 1}
+    }
+    fixed.load_game_model(FixTime, paramas)
+    fixed.set_epochs(200000)
     fixed.run()
