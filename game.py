@@ -144,8 +144,8 @@ class FixTime(Game):
         # agent.estimate_vector[agent.id] -= delta
 
         # partial = (cost_hat - cost) / delta
-        p = 1
-        q = 10.5
+        p = agent.super_parameter['p']
+        q = agent.super_parameter['q']
         s = 1
         f = 10
         
@@ -168,7 +168,8 @@ class FixTime(Game):
         delta = agent.super_parameter['delta']
         eta = agent.super_parameter['eta']
         epsilon = agent.super_parameter['epsilon']
-        
+        epsilon = 0
+
         partial_value = FixTime.partial_cost(agent)[0]
         
         sign = None
@@ -210,7 +211,7 @@ class FixTime(Game):
 
         delta = agent.super_parameter['delta']
         eta = agent.super_parameter['eta']
-        epsilon = agent.super_parameter['epsilon']
+        gama = agent.super_parameter['gama']
         
                    
         for id, value in update_value.items():
@@ -223,7 +224,7 @@ class FixTime(Game):
             else:
                 sign = -1
             
-            update_value[id] = -1*sign*(delta*np.power(update_value_fabs, p) + eta*np.power(update_value_fabs, q) +  epsilon*update_value_fabs)
+            update_value[id] = -1*sign*(delta*np.power(update_value_fabs, p) + eta*np.power(update_value_fabs, q) +  gama*update_value_fabs)
         
         return update_value
 

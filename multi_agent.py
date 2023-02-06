@@ -36,7 +36,8 @@ class GameSimulation():
             
             agent.set_game(game_model)
             agents[node_id] = agent
-        
+    
+
         for edge_id, edge in self.graph.edges.items():
             edge.start_node = agents[edge.start_node.id]
             edge.end_node = agents[edge.end_node.id]
@@ -56,12 +57,12 @@ class GameSimulation():
             #     res = executor.map(update_function, agent_list, [self.update_time]*len(agent_list))
             for node_id, agent in self.graph.nodes.items():
                 agent.update(self.update_time)
-                
+
+               
             for node_id, agent in self.graph.nodes.items():
                 
                 if is_debug:
                     agent.record(self.update_time)
-                
                 agent.flush()
 
         end = time.time()
@@ -103,13 +104,13 @@ if __name__ == '__main__':
     # graph.draw_graph()
     fixed = GameSimulation()
     fixed.set_graph(graph)
-    fixed.set_update_time(5e-5)
+    fixed.set_update_time(5e-4)
     paramas = {
-        '0': {'delta': 2, 'eta': 1, 'epsilon': 3}, 
-        '1': {'delta': 3, 'eta': 1.5, 'epsilon': 2}, 
-        '2': {'delta': 4.5 , 'eta': 3, 'epsilon': 1}, 
-        '3': {'delta': 5, 'eta': 2, 'epsilon': 1}
+        '0': {'delta': 4, 'eta': 1, 'gama': 20, 'epsilon': 1, 'p': 1, 'q': 10.5}, 
+        '1': {'delta': 4, 'eta': 2, 'gama': 20, 'epsilon': 2, 'p': 2, 'q': 5.5}, 
+        '2': {'delta': 3, 'eta': 1, 'gama': 20,'epsilon': 1, 'p': 1, 'q': 6}, 
+        '3': {'delta': 6, 'eta': 3, 'gama': 20, 'epsilon': 3, 'p': 2, 'q': 11}
     }
     fixed.load_game_model(FixTime, paramas)
-    fixed.set_epochs(200000)
+    fixed.set_epochs(15000)
     fixed.run()
