@@ -3,7 +3,6 @@ from game import Agent, Game, FixTime
 import numpy as np
 import matplotlib.pyplot as plt	
 import matplotlib.colors as mcolors
-from concurrent import futures
 import time
 
 class GameSimulation():
@@ -12,7 +11,6 @@ class GameSimulation():
         self.graph = None
         self.update_time = None
         self.epochs = None
-        self.max_works = 16
         
         self.summary = None
         
@@ -30,11 +28,14 @@ class GameSimulation():
         agents = {}
         for node_id, node in self.graph.nodes.items():
             agent = Agent(node)
-            
-            if paramas is not None:
-                FixTime.set_agent_parameter(agent, paramas[agent.id])
-            
             agent.set_game(game_model)
+                        
+            if paramas is not None and agent.id in paramas:
+                memory = FixTime.get_memory(agent, paramas[agent.id])
+            else:
+                memory = FixTime.get_memory(agent)
+            agent.set_memory(memory)
+            
             agents[node_id] = agent
     
 
@@ -48,19 +49,14 @@ class GameSimulation():
     def run(self, is_debug=True):
         
         start = time.time()
-        agent_list = [agent for agent in self.graph.nodes.values()]
-        update_function = getattr(Agent, 'update')
-        # print((agent_list[0], self.update_time))
+
         for i in range(self.epochs):
-            
-            # with futures.ThreadPoolExecutor(min(len(agent_list), self.max_works)) as executor:
-            #     res = executor.map(update_function, agent_list, [self.update_time]*len(agent_list))
+
             for node_id, agent in self.graph.nodes.items():
                 agent.update(self.update_time)
 
                
-            for node_id, agent in self.graph.nodes.items():
-                
+            for node_id, agent in self.graph.nodes.items():               
                 if is_debug:
                     agent.record(self.update_time)
                 agent.flush()
@@ -112,5 +108,5 @@ if __name__ == '__main__':
         '3': {'delta': 6, 'eta': 3, 'gama': 20, 'epsilon': 3, 'p': 2, 'q': 11}
     }
     fixed.load_game_model(FixTime, paramas)
-    fixed.set_epochs(15000)
+    fixed.set_epochs(5000)
     fixed.run()

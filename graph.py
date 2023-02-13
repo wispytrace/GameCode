@@ -149,32 +149,6 @@ class Graph:
         cv.imshow('graph',img)
         cv.waitKey(0)
 
-# class A(object):
-#     def __init__(self):
-#         self.x = 10
-# class B(object):
-#     def __init__(self, a):
-#         self.a = a
-#         self.b = 20
-
-#     def __getattr__(self, attr):
-
-#         return getattr(self.a, attr)
-
-#     def __setattr__(self, attr, val):
-        
-
-#         # print(attr)
-
-#         # print(attr)
-        
-#         if attr == 'a':
-#             return object.__setattr__(self, attr, val)
-#         else:
-#             if attr in self.__dict__:
-#                 return setattr(self, attr, val)
-#             else:
-#                 return setattr(self.a, attr, val)
 
 if __name__ == '__main__':
     
