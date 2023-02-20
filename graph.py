@@ -100,12 +100,27 @@ class Graph:
             id_index[id] = i
 
         for id, node in self.nodes.items():
-            matrix[id_index[id]][id_index[id]] = 1
+            # matrix[id_index[id]][id_index[id]] = 1
             for edge in node.in_edges:
                 matrix[id_index[id]][id_index[edge.start_node.id]] = edge.weight
 
         return matrix
 
+    def export_laplapian_matrix(self):
+        
+        n = len(self.nodes)
+        matrix = self.export_matrix()
+        id_index = {}
+
+        for i, id in enumerate(self.nodes.keys()):
+            id_index[id] = i
+
+        for id, node in self.nodes.items():
+            for edge in node.in_edges:
+                matrix[id_index[id]][id_index[id]] -= edge.weight
+
+        return -matrix
+        
 
     def draw_graph(self):
 
@@ -152,19 +167,29 @@ class Graph:
 
 if __name__ == '__main__':
     
-    matrix = [[1,1,0,1, 0],[1, 1, 1,0, 0], [1, 0, 1, 0, 1], [0,1,1,1, 0], [0, 1, 0, 1, 1]]
-    # a = A()
-    # b = B(a)
-    # b.x = 20
-    # b.x = 20
-    # b.x = 20
-    # b.b = 30
-
-    # print(a.x, b.b. a.b)
-    print (type(b), b.a, b.b)
-
+    matrix = [[1,0,0,1, 1],[1, 0, 1,1, 1], [0, 1, 1, 0, 1], [0, 1, 0, 1, 1], [1, 0, 1, 0, 1]]
     graph = Graph.load_matrix(matrix)
-    print(graph.export_matrix())
+    laplapian_matrix = graph.export_laplapian_matrix()
+    print(laplapian_matrix)
+    eigenvalue, feature = np.linalg.eig(laplapian_matrix.T)
+    print("laplabian:  ")
+    print(eigenvalue)
+    print(feature)
+    n = len(graph.nodes)
+    diga_matrix = np.zeros((n,n))
+    for i in range(n):
+        if np.fabs(eigenvalue[i]) < 1e-4:
+            for j in range(n):
+                diga_matrix[j][j] = np.fabs(feature[j, i])
+    print("diagmatrix:   ")
+    print(diga_matrix)
+    EL_matrix = np.matmul(diga_matrix, laplapian_matrix)
+    # print(EL_matrix)
+    eigenvalue, feature = np.linalg.eig(EL_matrix)
+    print("EL:  ")
+    print(eigenvalue)
+    print(feature)
+    
     graph.draw_graph()
 
             
