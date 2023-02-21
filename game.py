@@ -107,7 +107,7 @@ class FixTime(Game):
                 memory[parameter] = value
         
         memory['status'] = {agent.id: np.zeros(FixTime.get_memory_format()['status'])}
-        memory['estimate'] = {agent.id: np.zeros(FixTime.get_memory_format()['status'])}
+        memory['estimate'] = {agent.id: np.zeros(FixTime.get_memory_format()['estimate'])}
         
         return memory
 
@@ -231,5 +231,33 @@ class FixTime(Game):
             update_value[id] = -1*sign*(delta*np.power(update_value_fabs, p) + eta*np.power(update_value_fabs, q) +  gama*update_value_fabs)
         
         return update_value
+    
+    @staticmethod
+    def batch_update(graph, time_delta, epochs, is_debug=True):
+        
+        id_index = {}
+        n = len(graph.nodes)
+        status_vector = np.zeros(n, FixTime.get_memory_format['status'])
+        estimation_vector = np.zeros(n*n, FixTime.get_memory_format['estimate'])
+        for i, id in enumerate(graph.nodes.keys()):
+            id_index[id] = i
 
+        for id, agent in graph.nodes.items():
+            status_vector[id_index[id], 0] = agent.memory['status'][id]
+            for agent_id, value in agent.memory['estimate']:
+                estimation_vector[id_index[id]*n + id_index[agent_id], 0] = value
+        
+        laplapian_matrix = graph.export_laplapian_matrix()
+        M_matrix = np.zeros(n*n, n*n)
+        for i in range(n):
+            for j in range(n):
+                M_matrix[i*n+j, i*n+j] = laplapian_matrix[i, j]
+        
+        for i in range(epochs):
+            
+            
+        
+        
+        
+        
 
