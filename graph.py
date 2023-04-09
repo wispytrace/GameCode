@@ -167,7 +167,11 @@ class Graph:
 
 if __name__ == '__main__':
     
+<<<<<<< HEAD
     matrix = [[1,0,0,1, 0],[1, 0, 1,1, 1], [0, 1, 1, 0, 1], [0, 1, 0, 1, 1], [1, 0, 1, 0, 1]]
+=======
+    matrix = [[1,0,0,0, 1],[1, 1, 0,0, 0], [0, 1, 1, 0, 0], [0, 0, 1, 1, 0], [0, 0, 0, 1, 1]]
+>>>>>>> 3ab3b3ba440875b0f9e932d204db3bb8f6b73310
     graph = Graph.load_matrix(matrix)
     laplapian_matrix = graph.export_laplapian_matrix()
     print(laplapian_matrix)
@@ -178,9 +182,10 @@ if __name__ == '__main__':
     n = len(graph.nodes)
     diga_matrix = np.zeros((n,n))
     for i in range(n):
-        if np.fabs(eigenvalue[i]) < 1e-4:
+        # print(type(eigenvalue[i]))
+        if np.abs(eigenvalue[i]) < 1e-4:
             for j in range(n):
-                diga_matrix[j][j] = np.fabs(feature[j, i])
+                diga_matrix[j][j] = -feature[j, i]
     print("diagmatrix:   ")
     print(diga_matrix)
     EL_matrix = np.matmul(diga_matrix, laplapian_matrix)

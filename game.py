@@ -253,8 +253,12 @@ class FixTime(Game):
             for j in range(n):
                 M_matrix[i*n+j, i*n+j] = laplapian_matrix[i, j]
         
+<<<<<<< HEAD
         for i in range(epochs):
             pass
+=======
+        # for i in range(epochs):
+>>>>>>> 3ab3b3ba440875b0f9e932d204db3bb8f6b73310
             
             
         
