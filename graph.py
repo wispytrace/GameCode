@@ -167,7 +167,7 @@ class Graph:
 
 if __name__ == '__main__':
     
-    matrix = [[1,0,0,1, 1],[1, 0, 1,1, 1], [0, 1, 1, 0, 1], [0, 1, 0, 1, 1], [1, 0, 1, 0, 1]]
+    matrix = [[1,0,0,1, 0],[1, 0, 1,1, 1], [0, 1, 1, 0, 1], [0, 1, 0, 1, 1], [1, 0, 1, 0, 1]]
     graph = Graph.load_matrix(matrix)
     laplapian_matrix = graph.export_laplapian_matrix()
     print(laplapian_matrix)
