@@ -1,5 +1,5 @@
 from graph import Node, Graph
-from game import Agent, Game, FixTime
+from game import Agent, Game, FixTime, PreTimeConstrained
 import numpy as np
 import matplotlib.pyplot as plt	
 import matplotlib.colors as mcolors
@@ -31,9 +31,9 @@ class GameSimulation():
             agent.set_game(game_model)
                         
             if paramas is not None and agent.id in paramas:
-                memory = FixTime.get_memory(agent, paramas[agent.id])
+                memory = game_model.get_memory(agent, paramas[agent.id])
             else:
-                memory = FixTime.get_memory(agent)
+                memory = game_model.get_memory(agent)
             agent.set_memory(memory)
             
             agents[node_id] = agent
@@ -90,23 +90,74 @@ class GameSimulation():
         plt.ylabel('status')
         plt.show()
 
+
+
+class PrescribeGame(GameSimulation):
+
+    def __init__(self):
+        super().__init__()
+        self.T = 0
     
+    def set_T(self,T):
+        self.T = T
+
+    def run(self, is_debug=True):
+    
+        start = time.time()
+        
+        for i in range(self.epochs):
+            t = self.T / (np.pi*np.pi/6) * (1/((i+1)**2))
+            t = max(t, 1e-4)
+            for node_id, agent in self.graph.nodes.items():
+                agent.update(1/t)
+
+            for node_id, agent in self.graph.nodes.items():               
+                if is_debug:
+                    agent.record(t)
+                agent.flush()
+
+        end = time.time()
+        
+        print("time: " ,end-start)
+
+        if is_debug:
+            self.show_process()
+        
 
 
 if __name__ == '__main__':
     
-    matrix = [[1,1,1,1],[1, 1, 1,1], [1, 1, 1, 1], [1,1,1,1]]
+    # matrix = [[1,1,1,1],[1, 1, 1,1], [1, 1, 1, 1], [1,1,1,1]]
+    # graph = Graph.load_matrix(matrix)
+    # # graph.draw_graph()
+    # fixed = GameSimulation()
+    # fixed.set_graph(graph)
+    # fixed.set_update_time(5e-4)
+    # paramas = {
+    #     '0': {'delta': 4, 'eta': 1, 'gama': 20, 'epsilon': 1, 'p': 1, 'q': 10.5}, 
+    #     '1': {'delta': 4, 'eta': 2, 'gama': 20, 'epsilon': 2, 'p': 2, 'q': 5.5}, 
+    #     '2': {'delta': 3, 'eta': 1, 'gama': 20,'epsilon': 1, 'p': 1, 'q': 6}, 
+    #     '3': {'delta': 6, 'eta': 3, 'gama': 20, 'epsilon': 3, 'p': 2, 'q': 11}
+    # }
+    # fixed.load_game_model(FixTime, paramas)
+    # fixed.set_epochs(5000)
+    # fixed.run()
+
+    matrix = [[1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1]]
     graph = Graph.load_matrix(matrix)
-    # graph.draw_graph()
-    fixed = GameSimulation()
-    fixed.set_graph(graph)
-    fixed.set_update_time(5e-4)
+    game = PrescribeGame()
+    game.set_graph(graph)
+    game.set_T(10)
+    v = {'0': 0.091, '1': 0.161, '2': 0.221, '3': 0.1, '4':0.242, '5': 0.385}
+    n = {'0', '1', '2', '3', '4', '5'}
     paramas = {
-        '0': {'delta': 4, 'eta': 1, 'gama': 20, 'epsilon': 1, 'p': 1, 'q': 10.5}, 
-        '1': {'delta': 4, 'eta': 2, 'gama': 20, 'epsilon': 2, 'p': 2, 'q': 5.5}, 
-        '2': {'delta': 3, 'eta': 1, 'gama': 20,'epsilon': 1, 'p': 1, 'q': 6}, 
-        '3': {'delta': 6, 'eta': 3, 'gama': 20, 'epsilon': 3, 'p': 2, 'q': 11}
+        '0': {'e1': 0.56, 'e2': 0.075, 'v': v, 'n': n, 'alpha': 100}, 
+        '1': {'e1': 1.37, 'e2': 0.15, 'v': v, 'n': n, 'alpha': 100}, 
+        '2': {'e1': 1.75, 'e2': 0.2, 'v': v, 'n': n, 'alpha': 100}, 
+        '3': {'e1': 1, 'e2': 0.1, 'v': v, 'n': n, 'alpha': 100}, 
+        '4': {'e1': 1.5, 'e2': 0.2, 'v': v, 'n': n, 'alpha': 100}, 
+        '5': {'e1': 2, 'e2': 0.3, 'v': v, 'n': n, 'alpha': 100}, 
     }
-    fixed.load_game_model(FixTime, paramas)
-    fixed.set_epochs(5000)
-    fixed.run()
+    game.load_game_model(PreTimeConstrained, paramas)
+    game.set_epochs(5000)
+    game.run()
