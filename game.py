@@ -1,6 +1,5 @@
 import numpy as np
 from graph import Node
-from copy import deepcopy
 
 class Game:
 
@@ -28,73 +27,160 @@ class Game:
     def others_update_function(agent):
         pass
 
-class Agent(object):
+class PreTime(Game):
 
-    def __init__(self, node):
 
-        self.memory = None
-        self.memory_updated = None
+    @staticmethod
+    def get_memory(agent, init_memory=None):
         
-        self.game = None
-        
-        self.__node = node
+        memory = {}
 
-        self.records = []
+        if init_memory is not None:
+            for parameter, value in init_memory.items():
+                memory[parameter] = value
+        
+        if 'status'  not in memory.keys():
+            memory['status'] = {agent.id: np.zeros(PreTime.get_memory_format()['status'])}
+
+        if 'estimate' not in memory.keys():
+            memory['estimate'] = {}
+            for id in init_memory['n']:
+                memory['estimate'][id] = np.zeros(PreTime.get_memory_format()['estimate'])
+        
+
+        return memory
     
-    def set_game(self, game):
+    @staticmethod
+    def get_memory_format():
         
-        self.game = game
+        memory_format = {}
+        memory_format['status'] = 1
+        memory_format['estimate'] = 1
+        memory_format['alpha'] = 1
+        memory_format['k'] = 1
+        memory_format['n'] = 1
+
+        memory_format['e1'] = 1
+        memory_format['e2'] = 1
+        memory_format['v'] = 1
+
+        return memory_format
+
+    @staticmethod
+    def cost_function(agent):
+
+
+        p = [10, 15, 20, 25, 30, 35]
+        p_i = p[int(agent.id)]
+
+        status_sum = 0
+        for id, status in agent.memory['estimate'].items():
+            status_sum += status
         
-    def set_memory(self, memory):
+        x_i = agent.memory['estimate'][agent.id]
+
+        cost = (x_i - p_i)**2 + x_i*( 0.1*status_sum + 10)
         
-        self.memory = memory
+
+        return cost
     
-    def update(self, time_delta=1e-4):
-        
-        
-        self.memory_updated = deepcopy(self.memory)
-        
 
+    @staticmethod
+    def constrained_cost(agent):
 
-        self.memory_updated['status'][self.id] += self.game.status_update_function(self) * time_delta
+        v = agent.memory['v']
 
-        esitimate_update = self.game.estimation_update_function(self)
-        for id, value in esitimate_update.items():
-            if id not in self.memory_updated['estimate'].keys():
-                self.memory_updated['estimate'][id] = np.zeros(self.game.get_memory_format()['estimate'])
-            self.memory_updated['estimate'][id] += value * time_delta
+        constrained_sum = -2
 
+        constrained_cost = 0
 
-    def flush(self):
-        
-        self.memory['status'] = self.memory_updated['status']
-        self.memory['estimate'] = self.memory_updated['estimate']
-    
-    
-    def record(self, time_delta=0.1):
+        for id, status in agent.memory['estimate'].items():
 
-        current_record = {}
-        
-        if len(self.records) == 0:
-            current_record['time'] = 0
-        else:
-            current_record['time'] = time_delta + self.records[-1]['time']
+            constrained_sum += v[id] * status
             
-        current_record['status_vector'] = deepcopy(self.memory['status'])
-        current_record['estimate_vector'] = deepcopy(self.memory['estimate'])
+        if constrained_sum <= 0:
+            constrained_cost = 0
+        else:
+            constrained_cost -= v[agent.id]
+        
+        if agent.memory['estimate']['3'] + agent.memory['estimate']['4'] >= 10:
+            if agent.id == '3' or agent.id == '4':
+                constrained_cost -= 1
+        
+        constrained_cost *= constrained_cost * agent.memory['alpha']
 
-        self.records.append(current_record)
+        return constrained_cost
 
-    def __getattr__(self, attr): # 当在 Proxy 类中搜索不到对应的属性或方法时（调用 __getattribute__ 方法 便会调用 __getattr__ 方法，此时则利用 getattr() 函数获取代理对象的对应方法再返回即可。
-        return getattr(self.__node, attr)
 
-    # def __setattr__(self, attr, val):
+    @staticmethod
+    def partial_cost(agent):
+        
+        p = [10, 15, 20, 25, 30, 35]
+        p_i = p[int(agent.id)]
 
-    #     if attr == '_Agent__node':      # __x 会变成私有变量，即_x_xx 就可以巧妙避免命名重复
-    #         object.__setattr__(self, attr, val)
-    #     else:
-    #         return setattr(self.__node, attr, val)
+        status_sum = 0
+        for id, status in agent.memory['estimate'].items():
+            status_sum += status
+        
+        x_i = agent.memory['estimate'][agent.id]
 
+        cost = (x_i - p_i)**2 + x_i*( 0.1*status_sum + 10)
+
+        partial_cost = 2*(x_i - p_i) + (0.1*status_sum + 10) + x_i*1.1
+        
+
+        print(partial_cost)
+        print(agent.memory['estimate'])
+        return partial_cost
+
+    @staticmethod
+    def status_update_function(agent):
+
+        
+        k = 0.008
+        # alpha = agent.memory['alpha']
+        alpha = 0
+        update_value = -k*PreTime.partial_cost(agent)
+        
+        return update_value
+    
+
+    @staticmethod
+    def estimation_update_function(agent):
+        
+
+        update_value = {}
+
+        for id in agent.memory['n']:
+            update_value[id] = 0
+
+
+        adj_id = []
+
+
+        for in_edge in agent.in_edges:
+            in_agent = in_edge.start_node
+            adj_id.append(in_agent.id)
+
+            for id, value in in_agent.memory['estimate'].items():
+
+                update_value[id] += agent.memory['estimate'][id] - value
+
+            
+            update_value[in_agent.id] += agent.memory['estimate'][in_agent.id] - in_agent.memory['status'][in_agent.id]
+
+        for id, value in update_value.items():
+
+            if id in adj_id:
+                update_value[id] /= -(len(adj_id) + 1)
+            else:
+                update_value[id] /= -len(adj_id)
+            
+
+        return update_value
+
+
+        
 
 class PreTimeConstrained(Game):
 
@@ -204,10 +290,11 @@ class PreTimeConstrained(Game):
 
         
         k = 1e-10
-        alpha = agent.memory['alpha']
-    
+        # alpha = agent.memory['alpha']
+        alpha = 0
         update_value = -k*PreTimeConstrained.partial_cost(agent) + alpha * PreTimeConstrained.constrained_cost(agent)
-        print(update_value)
+        
+        # print(update_value)
         return update_value
     
 

@@ -1,5 +1,6 @@
 from graph import Node, Graph
-from game import Agent, Game, FixTime, PreTimeConstrained
+from Agent import Agent
+from game import Game, FixTime, PreTimeConstrained, PreTime
 import numpy as np
 import matplotlib.pyplot as plt	
 import matplotlib.colors as mcolors
@@ -106,15 +107,16 @@ class PrescribeGame(GameSimulation):
         start = time.time()
         
         for i in range(self.epochs):
-            t = self.T / (np.pi*np.pi/6) * (1/((i+1)**2))
-            t = max(t, 1e-4)
+            t = (self.T / ((np.pi*np.pi)/6)) * (1 / ((i+1)**2))
+            t = max(t, 0.001)
             for node_id, agent in self.graph.nodes.items():
-                agent.update(1/t)
+                agent.update(1)
 
             for node_id, agent in self.graph.nodes.items():               
                 if is_debug:
                     agent.record(t)
                 agent.flush()
+            print(self.graph.nodes['0'].memory['status'])
 
         end = time.time()
         
@@ -143,21 +145,21 @@ if __name__ == '__main__':
     # fixed.set_epochs(5000)
     # fixed.run()
 
-    matrix = [[1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1]]
+    # matrix = [[1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1]]
+    matrix = [[1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1]]
+
     graph = Graph.load_matrix(matrix)
     game = PrescribeGame()
     game.set_graph(graph)
-    game.set_T(10)
-    v = {'0': 0.091, '1': 0.161, '2': 0.221, '3': 0.1, '4':0.242, '5': 0.385}
-    n = {'0', '1', '2', '3', '4', '5'}
+    game.set_T(1)
+    n = {'0', '1', '2', '3', '4'}
     paramas = {
-        '0': {'e1': 0.56, 'e2': 0.075, 'v': v, 'n': n, 'alpha': 100}, 
-        '1': {'e1': 1.37, 'e2': 0.15, 'v': v, 'n': n, 'alpha': 100}, 
-        '2': {'e1': 1.75, 'e2': 0.2, 'v': v, 'n': n, 'alpha': 100}, 
-        '3': {'e1': 1, 'e2': 0.1, 'v': v, 'n': n, 'alpha': 100}, 
-        '4': {'e1': 1.5, 'e2': 0.2, 'v': v, 'n': n, 'alpha': 100}, 
-        '5': {'e1': 2, 'e2': 0.3, 'v': v, 'n': n, 'alpha': 100}, 
+        '0': { 'n': n, 'alpha': 100}, 
+        '1': { 'n': n, 'alpha': 100}, 
+        '2': {'n': n, 'alpha': 100}, 
+        '3': { 'n': n, 'alpha': 100}, 
+        '4': {'n': n, 'alpha': 100}, 
     }
-    game.load_game_model(PreTimeConstrained, paramas)
-    game.set_epochs(5000)
+    game.load_game_model(PreTime, paramas)
+    game.set_epochs(1000)
     game.run()
