@@ -24,8 +24,6 @@ def get_model(model_id):
         model = GameSimulation()
         model.set_update_time(config_dict['global']['time_delta'])
 
-
-
     model.set_graph(Graph.load_matrix(config_dict['global']['matrix']))
     model.epochs = config_dict['global']['epochs']
     paramas = combine_info(config_dict['share'], config_dict['private'])
