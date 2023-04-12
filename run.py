@@ -1,6 +1,6 @@
-from config import ModelNames, prescribe_time_config
-from simulation import PrescribeSimulation
-from game import PreTime
+from config import ModelNames, prescribe_time_config, fixed_time_config
+from simulation import  GameSimulation, PrescribeSimulation
+from game import PreTime, FixTime
 from graph import Graph
 
 def combine_info(share, private):
@@ -18,6 +18,12 @@ def get_model(model_id):
         game_model = PreTime()
         model = PrescribeSimulation()
         model.set_T(config_dict['global']['Tf'])
+    elif model_id == ModelNames.fixed_time:
+        config_dict = fixed_time_config
+        game_model = FixTime()
+        model = GameSimulation()
+        model.set_update_time(config_dict['global']['time_delta'])
+
 
 
     model.set_graph(Graph.load_matrix(config_dict['global']['matrix']))
@@ -31,7 +37,7 @@ def get_model(model_id):
 
 if __name__ == '__main__':
     
-    model = get_model(ModelNames.prescibe_time)
+    model = get_model(ModelNames.fixed_time)
     model.run()
 
 

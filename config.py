@@ -4,6 +4,8 @@ class ModelNames(enum.Enum):
 
     prescibe_time = 1
 
+    fixed_time = 2
+
 
 prescribe_time_config = {
 
@@ -27,7 +29,23 @@ prescribe_time_config = {
     }
 }
 
+fixed_time_config = {
 
+    'global': {
+        'matrix': [[1,1,1,1],[1, 1, 1,1], [1, 1, 1, 1], [1,1,1,1]],
+        'epochs': 5000,
+        'time_delta': 5e-4
+    },
+
+    'share': {},
+
+    'private':{
+        '0': {'delta': 4, 'eta': 1, 'gama': 20, 'epsilon': 1, 'p': 1, 'q': 10.5}, 
+        '1': {'delta': 4, 'eta': 2, 'gama': 20, 'epsilon': 2, 'p': 2, 'q': 5.5}, 
+        '2': {'delta': 3, 'eta': 1, 'gama': 20,'epsilon': 1, 'p': 1, 'q': 6}, 
+        '3': {'delta': 6, 'eta': 3, 'gama': 20, 'epsilon': 3, 'p': 2, 'q': 11}
+    }
+}
 prescribed_time_constrained_model = {
     # v = {'0': 0.091, '1': 0.161, '2': 0.221, '3': 0.1, '4':0.242, '5': 0.385}
     # n = {'0', '1', '2', '3', '4', '5'}

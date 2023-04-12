@@ -306,8 +306,8 @@ class FixTime(Game):
             for parameter, value in init_memory.items():
                 memory[parameter] = value
         
-        memory['status'] = {agent.id: np.zeros(FixTime.get_memory_format()['status'])}
-        memory['estimate'] = {agent.id: np.zeros(FixTime.get_memory_format()['estimate'])}
+        memory['status'] = {agent.id: np.zeros(self.get_memory_format()['status'])}
+        memory['estimate'] = {agent.id: np.zeros(self.get_memory_format()['estimate'])}
         
         return memory
 
@@ -391,7 +391,7 @@ class FixTime(Game):
         epsilon = agent.memory['epsilon']
         epsilon = 0
 
-        partial_value = FixTime.partial_cost(self, agent)[0]
+        partial_value = self.partial_cost(agent)[0]
         
         sign = None
         if partial_value > 0:
@@ -450,25 +450,25 @@ class FixTime(Game):
         return update_value
     
     
-    def batch_update(graph, time_delta, epochs, is_debug=True):
+    # def batch_update(graph, time_delta, epochs, is_debug=True):
         
-        id_index = {}
-        n = len(graph.nodes)
-        status_vector = np.zeros(n, FixTime.get_memory_format['status'])
-        estimation_vector = np.zeros(n*n, FixTime.get_memory_format['estimate'])
-        for i, id in enumerate(graph.nodes.keys()):
-            id_index[id] = i
+    #     id_index = {}
+    #     n = len(graph.nodes)
+    #     status_vector = np.zeros(n, FixTime.get_memory_format['status'])
+    #     estimation_vector = np.zeros(n*n, FixTime.get_memory_format['estimate'])
+    #     for i, id in enumerate(graph.nodes.keys()):
+    #         id_index[id] = i
 
-        for id, agent in graph.nodes.items():
-            status_vector[id_index[id], 0] = agent.memory['status'][id]
-            for agent_id, value in agent.memory['estimate']:
-                estimation_vector[id_index[id]*n + id_index[agent_id], 0] = value
+    #     for id, agent in graph.nodes.items():
+    #         status_vector[id_index[id], 0] = agent.memory['status'][id]
+    #         for agent_id, value in agent.memory['estimate']:
+    #             estimation_vector[id_index[id]*n + id_index[agent_id], 0] = value
         
-        laplapian_matrix = graph.export_laplapian_matrix()
-        M_matrix = np.zeros(n*n, n*n)
-        for i in range(n):
-            for j in range(n):
-                M_matrix[i*n+j, i*n+j] = laplapian_matrix[i, j]
+    #     laplapian_matrix = graph.export_laplapian_matrix()
+    #     M_matrix = np.zeros(n*n, n*n)
+    #     for i in range(n):
+    #         for j in range(n):
+    #             M_matrix[i*n+j, i*n+j] = laplapian_matrix[i, j]
         
 
             
