@@ -1,7 +1,30 @@
-prescribe_time_model = {
+import enum
+
+class ModelNames(enum.Enum):
+
+    prescibe_time = 1
 
 
+prescribe_time_config = {
 
+    'global': {
+        'matrix': [[1,1,1,1,1], [1,1,1,1,1], [1,1,1,1,1], [1,1,1,1,1], [1,1,1,1,1]],
+        'epochs': 1000,
+        'Tf' : 1
+    },
+
+    'share' : {
+        'n' : {'0', '1', '2', '3', '4'},
+        'k' : 0.008
+    },
+
+    'private' : {
+        '0': {}, 
+        '1': {}, 
+        '2': {}, 
+        '3': {}, 
+        '4': {},  
+    }
 }
 
 

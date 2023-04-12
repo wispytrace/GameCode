@@ -1,73 +1,61 @@
 import numpy as np
-from graph import Node
 
 class Game:
 
-    @staticmethod
-    def get_memory():
-        pass
-    
-    @staticmethod
-    def get_memory_format():
-        pass
-    
-    @staticmethod
-    def cost_function(agnet):
+    def  __init__(self) -> None:
         pass
 
-    @staticmethod
-    def status_update_function(agent):
-        pass
-
-    @staticmethod
-    def estimation_update_function(agent):
-        pass
-
-    @staticmethod
-    def others_update_function(agent):
-        pass
-
-class PreTime(Game):
-
-
-    @staticmethod
-    def get_memory(agent, init_memory=None):
+    def get_memory(self, agent, init_memory=None):        
         
         memory = {}
-
+        
         if init_memory is not None:
             for parameter, value in init_memory.items():
                 memory[parameter] = value
         
         if 'status'  not in memory.keys():
-            memory['status'] = {agent.id: np.zeros(PreTime.get_memory_format()['status'])}
+            memory['status'] = {agent.id: np.zeros(self.get_memory_format()['status'])}
 
         if 'estimate' not in memory.keys():
             memory['estimate'] = {}
             for id in init_memory['n']:
-                memory['estimate'][id] = np.zeros(PreTime.get_memory_format()['estimate'])
-        
+                memory['estimate'][id] = np.zeros(self.get_memory_format()['estimate'])
 
         return memory
     
-    @staticmethod
-    def get_memory_format():
+    
+    def get_memory_format(self):
+        pass
+    
+    
+    def cost_function(self, agnet):
+        pass
+
+    def status_update_function(self, agent):
+        pass
+
+    def estimation_update_function(self, agent):
+        pass
+
+    def others_update_function(self, agent):
+        pass
+
+class PreTime(Game):
+
+    
+    def get_memory_format(self):
         
         memory_format = {}
         memory_format['status'] = 1
         memory_format['estimate'] = 1
-        memory_format['alpha'] = 1
-        memory_format['k'] = 1
         memory_format['n'] = 1
 
-        memory_format['e1'] = 1
-        memory_format['e2'] = 1
-        memory_format['v'] = 1
+        memory_format['k'] = 1
 
         return memory_format
 
-    @staticmethod
-    def cost_function(agent):
+    
+    def cost_function(self, agent):
 
 
         p = [10, 15, 20, 25, 30, 35]
@@ -85,8 +73,8 @@ class PreTime(Game):
         return cost
     
 
-    @staticmethod
-    def constrained_cost(agent):
+    
+    def constrained_cost(self, agent):
 
         v = agent.memory['v']
 
@@ -112,8 +100,8 @@ class PreTime(Game):
         return constrained_cost
 
 
-    @staticmethod
-    def partial_cost(agent):
+    
+    def partial_cost(self, agent):
         
         p = [10, 15, 20, 25, 30, 35]
         p_i = p[int(agent.id)]
@@ -128,25 +116,19 @@ class PreTime(Game):
 
         partial_cost = 2*(x_i - p_i) + (0.1*status_sum + 10) + x_i*1.1
         
-
-        print(partial_cost)
-        print(agent.memory['estimate'])
         return partial_cost
 
-    @staticmethod
-    def status_update_function(agent):
-
+    
+    def status_update_function(self, agent):
         
-        k = 0.008
-        # alpha = agent.memory['alpha']
-        alpha = 0
-        update_value = -k*PreTime.partial_cost(agent)
+        k = agent.memory['k']
+        update_value = -k*self.partial_cost(agent)
         
         return update_value
     
 
-    @staticmethod
-    def estimation_update_function(agent):
+    
+    def estimation_update_function(self, agent):
         
 
         update_value = {}
@@ -185,28 +167,7 @@ class PreTime(Game):
 class PreTimeConstrained(Game):
 
     
-    @staticmethod
-    def get_memory(agent, init_memory=None):
-        
-        memory = {}
-
-        if init_memory is not None:
-            for parameter, value in init_memory.items():
-                memory[parameter] = value
-        
-        if 'status'  not in memory.keys():
-            memory['status'] = {agent.id: np.zeros(PreTimeConstrained.get_memory_format()['status'])}
-
-        if 'estimate' not in memory.keys():
-            memory['estimate'] = {}
-            for id in init_memory['n']:
-                memory['estimate'][id] = np.zeros(PreTimeConstrained.get_memory_format()['estimate'])
-        
-
-        return memory
-    
-    @staticmethod
-    def get_memory_format():
+    def get_memory_format(self):
         
         memory_format = {}
         memory_format['status'] = 1
@@ -221,8 +182,8 @@ class PreTimeConstrained(Game):
 
         return memory_format
 
-    @staticmethod
-    def cost_function(agent):
+    
+    def cost_function(self, agent):
 
         d1 = 3
         d2 = 0.02
@@ -246,8 +207,8 @@ class PreTimeConstrained(Game):
         return cost
     
 
-    @staticmethod
-    def constrained_cost(agent):
+    
+    def constrained_cost(self, agent):
 
         v = agent.memory['v']
 
@@ -273,8 +234,8 @@ class PreTimeConstrained(Game):
         return constrained_cost
 
 
-    @staticmethod
-    def partial_cost( agent):
+    
+    def partial_cost(self,  agent):
         
         delta = 1e-4
         cost = PreTimeConstrained.cost_function(agent)
@@ -285,21 +246,19 @@ class PreTimeConstrained(Game):
         return cost_hat - cost / delta
 
 
-    @staticmethod
-    def status_update_function(agent):
+    
+    def status_update_function(self, agent):
 
         
         k = 1e-10
-        # alpha = agent.memory['alpha']
         alpha = 0
-        update_value = -k*PreTimeConstrained.partial_cost(agent) + alpha * PreTimeConstrained.constrained_cost(agent)
+        update_value = -k*self.partial_cost(agent) + alpha * PreTimeConstrained.constrained_cost(self, agent)
         
-        # print(update_value)
         return update_value
     
 
-    @staticmethod
-    def estimation_update_function(agent):
+    
+    def estimation_update_function(self, agent):
         
 
         update_value = {}
@@ -329,7 +288,6 @@ class PreTimeConstrained(Game):
             else:
                 update_value[id] /= -len(adj_id)
             
-
         return update_value
 
 
@@ -339,8 +297,8 @@ class PreTimeConstrained(Game):
 class FixTime(Game):
 
     
-    @staticmethod
-    def get_memory(agent, init_memory=None):
+    
+    def get_memory(self, agent, init_memory=None):
         
         memory = {}
         
@@ -353,8 +311,8 @@ class FixTime(Game):
         
         return memory
 
-    @staticmethod
-    def get_memory_format():
+    
+    def get_memory_format(self):
         
         memory_format = {}
         memory_format['status'] = 1
@@ -368,8 +326,8 @@ class FixTime(Game):
         
         return memory_format
 
-    @staticmethod
-    def cost_function(agent):
+    
+    def cost_function(self, agent):
         p = 1
         q = 10.5
         s = 1
@@ -387,8 +345,8 @@ class FixTime(Game):
 
 
     
-    @staticmethod
-    def cost_function(agent):
+    
+    def cost_function(self, agent):
         p = 1
         q = 10.5
         s = 1
@@ -403,8 +361,8 @@ class FixTime(Game):
         
         return cost
     
-    @staticmethod
-    def partial_cost(agent):
+    
+    def partial_cost(self, agent):
         
 
         p = agent.memory['p']
@@ -423,8 +381,8 @@ class FixTime(Game):
         return partial
 
 
-    @staticmethod
-    def status_update_function(agent):
+    
+    def status_update_function(self, agent):
         p = 0.5
         q = 1.5
 
@@ -433,7 +391,7 @@ class FixTime(Game):
         epsilon = agent.memory['epsilon']
         epsilon = 0
 
-        partial_value = FixTime.partial_cost(agent)[0]
+        partial_value = FixTime.partial_cost(self, agent)[0]
         
         sign = None
         if partial_value > 0:
@@ -450,8 +408,8 @@ class FixTime(Game):
         return update_value
 
 
-    @staticmethod
-    def estimation_update_function(agent):
+    
+    def estimation_update_function(self, agent):
         
         p = 0.5
         q = 1.5
@@ -491,7 +449,7 @@ class FixTime(Game):
         
         return update_value
     
-    @staticmethod
+    
     def batch_update(graph, time_delta, epochs, is_debug=True):
         
         id_index = {}
@@ -512,9 +470,7 @@ class FixTime(Game):
             for j in range(n):
                 M_matrix[i*n+j, i*n+j] = laplapian_matrix[i, j]
         
-        # for i in range(epochs):
-        #     pass
-            
+
             
         
         

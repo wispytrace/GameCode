@@ -1,5 +1,5 @@
 from graph import Node, Graph
-from Agent import Agent
+from agent import Agent
 from game import Game, FixTime, PreTimeConstrained, PreTime
 import numpy as np
 import matplotlib.pyplot as plt	
@@ -93,7 +93,7 @@ class GameSimulation():
 
 
 
-class PrescribeGame(GameSimulation):
+class PrescribeSimulation(GameSimulation):
 
     def __init__(self):
         super().__init__()
@@ -108,7 +108,7 @@ class PrescribeGame(GameSimulation):
         
         for i in range(self.epochs):
             t = (self.T / ((np.pi*np.pi)/6)) * (1 / ((i+1)**2))
-            t = max(t, 0.001)
+            t = max(t, 0.0001)
             for node_id, agent in self.graph.nodes.items():
                 agent.update(1)
 
@@ -146,7 +146,7 @@ if __name__ == '__main__':
     # fixed.run()
 
     # matrix = [[1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1]]
-    matrix = [[1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1]]
+    matrix = [[1,1,1,1,1], [1,1,1,1,1], [1,1,1,1,1], [1,1,1,1,1], [1,1,1,1,1]]
 
     graph = Graph.load_matrix(matrix)
     game = PrescribeGame()
@@ -154,12 +154,12 @@ if __name__ == '__main__':
     game.set_T(1)
     n = {'0', '1', '2', '3', '4'}
     paramas = {
-        '0': { 'n': n, 'alpha': 100}, 
-        '1': { 'n': n, 'alpha': 100}, 
-        '2': {'n': n, 'alpha': 100}, 
-        '3': { 'n': n, 'alpha': 100}, 
-        '4': {'n': n, 'alpha': 100}, 
+        '0': { 'n': n, 'k': 0.08}, 
+        '1': { 'n': n, 'k': 0.08}, 
+        '2': {'n': n, 'k': 0.08}, 
+        '3': { 'n': n, 'k': 0.08}, 
+        '4': {'n': n, 'k': 0.08}, 
     }
-    game.load_game_model(PreTime, paramas)
+    game.load_game_model(PreTime(), paramas)
     game.set_epochs(1000)
     game.run()

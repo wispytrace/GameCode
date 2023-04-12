@@ -1,4 +1,5 @@
 from copy import deepcopy
+import numpy as np
 
 class Agent(object):
 
@@ -26,8 +27,6 @@ class Agent(object):
         
         self.memory_updated = deepcopy(self.memory)
         
-
-
         self.memory_updated['status'][self.id] += self.game.status_update_function(self) * time_delta
 
         esitimate_update = self.game.estimation_update_function(self)
