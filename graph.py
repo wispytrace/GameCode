@@ -2,46 +2,40 @@ import math
 import cv2 as cv
 import numpy as np
 
+
 class Node:
-    
+
     def __init__(self) -> None:
         self.id = None
         self.in_edges = []
         self.out_edges = []
-    
-    # def bind_agent(self, agent):
-        
-    #     agent.id = self.id
-    #     self.agent = agent
-        
 
     def set_id(self, id):
         self.id = str(id)
 
     def add_in_edge(self, edge):
         self.in_edges.append(edge)
-    
+
     def add_out_edge(self, edge):
         self.out_edges.append(edge)
 
+
 class Edge:
-    
+
     def __init__(self) -> None:
-        
+
         self.start_node = None
         self.end_node = None
         self.id = None
         self.weight = 1
-    
+
     def set_start_end(self, start_node, end_node):
-        self.start_node =  start_node
+        self.start_node = start_node
         self.end_node = end_node
         self.id = start_node.id + "->" + end_node.id
-    
-    
+
     def set_weight(self, weight):
         self.weight = weight
-    
 
 
 class Graph:
@@ -49,7 +43,7 @@ class Graph:
     def __init__(self) -> None:
         self.nodes = {}
         self.edges = {}
-    
+
     def add_node(self, node):
 
         self.nodes[node.id] = node
@@ -61,7 +55,7 @@ class Graph:
     def get_node(self, id):
 
         return self.nodes[str(id)]
-    
+
     def get_edge(self, id):
 
         return self.edges[str(id)]
@@ -75,7 +69,7 @@ class Graph:
             node = Node()
             node.set_id(i)
             graph.add_node(node)
-        
+
         for i in range(n):
             for j in range(n):
                 if i == j:
@@ -93,7 +87,7 @@ class Graph:
     def export_matrix(self):
 
         n = len(self.nodes)
-        matrix = np.zeros((n,n))
+        matrix = np.zeros((n, n))
         id_index = {}
 
         for i, id in enumerate(self.nodes.keys()):
@@ -107,7 +101,7 @@ class Graph:
         return matrix
 
     def export_laplapian_matrix(self):
-        
+
         n = len(self.nodes)
         matrix = self.export_matrix()
         id_index = {}
@@ -120,7 +114,6 @@ class Graph:
                 matrix[id_index[id]][id_index[id]] -= edge.weight
 
         return -matrix
-        
 
     def draw_graph(self):
 
@@ -128,7 +121,7 @@ class Graph:
         width = 800
         radius = 150
         circle_radius = 30
-        text_color = (0,0,0)
+        text_color = (0, 0, 0)
         circle_color = (0, 0, 0)
         arrow_color = (0, 0, 0)
         nodes_position = {}
@@ -142,55 +135,26 @@ class Graph:
             count += 1
             nodes_position[id] = (x, y)
 
-
-
-        img=np.ones((height,width,3),np.uint8) * 255
+        img = np.ones((height, width, 3), np.uint8) * 255
         for id, pos in nodes_position.items():
-            cv.circle(img,pos,circle_radius,circle_color,2)
-            cv.putText(img, id, (pos[0]-5,pos[1]+5), cv.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 2)
+            cv.circle(img, pos, circle_radius, circle_color, 2)
+            cv.putText(img, id, (pos[0]-5, pos[1]+5),
+                       cv.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 2)
 
         for node_id, node in self.nodes.items():
             in_pos = nodes_position[node_id]
             for in_edge in node.in_edges:
                 out_pos = nodes_position[in_edge.start_node.id]
-                distance = np.sqrt((out_pos[1] - in_pos[1])**2 + (out_pos[0] - in_pos[0])**2)
-                direction = (in_pos[0] - out_pos[0] ,in_pos[1] - out_pos[1])
+                distance = np.sqrt(
+                    (out_pos[1] - in_pos[1])**2 + (out_pos[0] - in_pos[0])**2)
+                direction = (in_pos[0] - out_pos[0], in_pos[1] - out_pos[1])
                 ratio = circle_radius / distance
-                arrow_start = (int(direction[0] * ratio + out_pos[0]), int(direction[1] * ratio + out_pos[1]))
-                arrow_end = (int(direction[0] * (1-ratio) + out_pos[0]), int(direction[1] * (1-ratio) + out_pos[1]))
+                arrow_start = (
+                    int(direction[0] * ratio + out_pos[0]), int(direction[1] * ratio + out_pos[1]))
+                arrow_end = (int(direction[0] * (1-ratio) + out_pos[0]),
+                             int(direction[1] * (1-ratio) + out_pos[1]))
 
                 cv.arrowedLine(img, arrow_start, arrow_end, arrow_color, 2)
 
-        cv.imshow('graph',img)
+        cv.imshow('graph', img)
         cv.waitKey(0)
-
-
-if __name__ == '__main__':
-    
-    matrix = [[1,0,0,1, 0],[1, 0, 1,1, 1], [0, 1, 1, 0, 1], [0, 1, 0, 1, 1], [1, 0, 1, 0, 1]]
-    graph = Graph.load_matrix(matrix)
-    laplapian_matrix = graph.export_laplapian_matrix()
-    print(laplapian_matrix)
-    eigenvalue, feature = np.linalg.eig(laplapian_matrix.T)
-    print("laplabian:  ")
-    print(eigenvalue)
-    print(feature)
-    n = len(graph.nodes)
-    diga_matrix = np.zeros((n,n))
-    for i in range(n):
-        # print(type(eigenvalue[i]))
-        if np.abs(eigenvalue[i]) < 1e-4:
-            for j in range(n):
-                diga_matrix[j][j] = -feature[j, i]
-    print("diagmatrix:   ")
-    print(diga_matrix)
-    EL_matrix = np.matmul(diga_matrix, laplapian_matrix)
-    # print(EL_matrix)
-    eigenvalue, feature = np.linalg.eig(EL_matrix)
-    print("EL:  ")
-    print(eigenvalue)
-    print(feature)
-    
-    graph.draw_graph()
-
-            

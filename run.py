@@ -1,26 +1,33 @@
-from config import ModelNames, prescribe_time_config, fixed_time_config
-from simulation import  GameSimulation, PrescribeSimulation
-from game import PreTime, FixTime
+from config import *
+from simulation import GameSimulation, PrescribeSimulation
+from game import PreTimeGame, FixTimeGame, ConstrainedGame
 from graph import Graph
+
 
 def combine_info(share, private):
 
     for key, value in share.items():
         for id, agent in private.items():
             agent[key] = value
-    
+
     return private
+
 
 def get_model(model_id):
 
     if model_id == ModelNames.prescibe_time:
         config_dict = prescribe_time_config
-        game_model = PreTime()
+        game_model = PreTimeGame()
         model = PrescribeSimulation()
         model.set_T(config_dict['global']['Tf'])
     elif model_id == ModelNames.fixed_time:
         config_dict = fixed_time_config
-        game_model = FixTime()
+        game_model = FixTimeGame()
+        model = GameSimulation()
+        model.set_update_time(config_dict['global']['time_delta'])
+    elif model_id == ModelNames.constrained:
+        config_dict = constrained_config
+        game_model = ConstrainedGame()
         model = GameSimulation()
         model.set_update_time(config_dict['global']['time_delta'])
 
@@ -31,12 +38,8 @@ def get_model(model_id):
 
     return model
 
-        
 
 if __name__ == '__main__':
-    
+
     model = get_model(ModelNames.fixed_time)
     model.run()
-
-
-
