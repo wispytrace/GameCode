@@ -124,25 +124,3 @@ class PrescribeSimulation(GameSimulation):
 
         if is_debug:
             self.show_process()
-        
-
-
-# if __name__ == '__main__':
-    
-#     matrix = [[1,1,1,1],[1, 1, 1,1], [1, 1, 1, 1], [1,1,1,1]]
-#     graph = Graph.load_matrix(matrix)
-#     # graph.draw_graph()
-#     fixed = GameSimulation()
-#     fixed.set_graph(graph)
-#     fixed.set_update_time(5e-4)
-#     paramas = {
-#         '0': {'delta': 4, 'eta': 1, 'gama': 20, 'epsilon': 1, 'p': 1, 'q': 10.5}, 
-#         '1': {'delta': 4, 'eta': 2, 'gama': 20, 'epsilon': 2, 'p': 2, 'q': 5.5}, 
-#         '2': {'delta': 3, 'eta': 1, 'gama': 20,'epsilon': 1, 'p': 1, 'q': 6}, 
-#         '3': {'delta': 6, 'eta': 3, 'gama': 20, 'epsilon': 3, 'p': 2, 'q': 11}
-#     }
-#     fixed.load_game_model(FixTime, paramas)
-#     fixed.set_epochs(5000)
-#     fixed.run()
-
-#     matrix = [[1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1], [1,1,1,1,1,1]]

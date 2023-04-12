@@ -57,7 +57,7 @@ class Agent(object):
 
         self.records.append(current_record)
 
-    def __getattr__(self, attr): # 当在 Proxy 类中搜索不到对应的属性或方法时（调用 __getattribute__ 方法 便会调用 __getattr__ 方法，此时则利用 getattr() 函数获取代理对象的对应方法再返回即可。
+    def __getattr__(self, attr):        # 当在 Proxy 类中搜索不到对应的属性或方法时（调用 __getattribute__ 方法 便会调用 __getattr__ 方法，此时则利用 getattr() 函数获取代理对象的对应方法再返回即可。
         return getattr(self.__node, attr)
 
     # def __setattr__(self, attr, val):
