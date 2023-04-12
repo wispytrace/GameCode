@@ -229,7 +229,7 @@ class ConstrainedGame(Game):
         alpha = 0
         update_value = -k * \
             self.partial_cost(agent) + alpha * \
-            PreTimeConstrained.constrained_cost(self, agent)
+            self.constrained_cost(self, agent)
 
         return update_value
 
