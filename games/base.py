@@ -31,12 +31,39 @@ class Game:
 
     def cost_function(self, agnet):
         pass
-
+    
+    def partial_cost(self, agent):
+        
+        delta = 1e-8
+        cost = self.cost_function(agent)
+        agent.memory['estimate'][agent.id] += delta
+        cost_hat = self.cost_function(agent)
+        agent.memory['estimate'][agent.id] -= delta
+        
+        return (cost_hat - cost) / delta
+    
     def status_update_function(self, agent):
         pass
 
     def estimation_update_function(self, agent):
-        pass
+
+        update_value = {}
+
+        for id in agent.memory['n']:
+            update_value[id] = 0
+
+        for in_edge in agent.in_edges:
+            in_agent = in_edge.start_node
+
+            for id, value in in_agent.memory['estimate'].items():
+
+                update_value[id] += agent.memory['estimate'][id] - value
+
+            update_value[in_agent.id] += agent.memory['estimate'][in_agent.id] - \
+                in_agent.memory['status'][in_agent.id]
+
+        return update_value
+
 
     def others_update_function(self, agent):
         pass
@@ -57,8 +84,7 @@ class PreTimeGame(Game):
 
     def cost_function(self, agent):
 
-        p = [10, 15, 20, 25, 30, 35]
-        p_i = p[int(agent.id)]
+        p_i = agent.memory['p']
 
         status_sum = 0
         for id, status in agent.memory['estimate'].items():
@@ -70,35 +96,9 @@ class PreTimeGame(Game):
 
         return cost
 
-    def constrained_cost(self, agent):
-
-        v = agent.memory['v']
-
-        constrained_sum = -2
-
-        constrained_cost = 0
-
-        for id, status in agent.memory['estimate'].items():
-
-            constrained_sum += v[id] * status
-
-        if constrained_sum <= 0:
-            constrained_cost = 0
-        else:
-            constrained_cost -= v[agent.id]
-
-        if agent.memory['estimate']['3'] + agent.memory['estimate']['4'] >= 10:
-            if agent.id == '3' or agent.id == '4':
-                constrained_cost -= 1
-
-        constrained_cost *= constrained_cost * agent.memory['alpha']
-
-        return constrained_cost
-
     def partial_cost(self, agent):
 
-        p = [10, 15, 20, 25, 30, 35]
-        p_i = p[int(agent.id)]
+        p_i = agent.memory['p']
 
         status_sum = 0
         for id, status in agent.memory['estimate'].items():
@@ -106,10 +106,8 @@ class PreTimeGame(Game):
 
         x_i = agent.memory['estimate'][agent.id]
 
-        cost = (x_i - p_i)**2 + x_i*(0.1*status_sum + 10)
-
-        partial_cost = 2*(x_i - p_i) + (0.1*status_sum + 10) + x_i*1.1
-
+        partial_cost = 2*(x_i - p_i) + (0.1*status_sum + 10) + x_i*0.1
+        
         return partial_cost
 
     def status_update_function(self, agent):
@@ -145,6 +143,7 @@ class PreTimeGame(Game):
                 update_value[id] /= -(len(adj_id) + 1)
             else:
                 update_value[id] /= -len(adj_id)
+    
 
         return update_value
 
@@ -184,11 +183,12 @@ class ConstrainedGame(Game):
         else:
             Ti = (2*e1 + e2*xi)*xi - 5*e1
 
-        cost = Ri - Ti
+        cost = Ti - Ri
 
         return cost
 
-    def constrained_cost(self, agent):
+    
+    def l2_constrained_cost(self, agent):
 
         v = agent.memory['v']
 
@@ -203,35 +203,188 @@ class ConstrainedGame(Game):
         if constrained_sum <= 0:
             constrained_cost = 0
         else:
-            constrained_cost -= v[agent.id]
+            constrained_cost += 2 * constrained_sum * v[agent.id]
 
-        if agent.memory['estimate']['3'] + agent.memory['estimate']['4'] >= 10:
+        special_sum = agent.memory['estimate']['3'] + agent.memory['estimate']['4'] - 10
+        if  special_sum >= 0:
             if agent.id == '3' or agent.id == '4':
-                constrained_cost -= 1
+                constrained_cost = constrained_cost + 2 * special_sum
+        
+        if agent.memory['estimate'][agent.id] < 0 :
+            constrained_cost = constrained_cost + 2*agent.memory['estimate'][agent.id]
 
-        constrained_cost *= constrained_cost * agent.memory['alpha']
-
+        if constrained_cost > 0:            
+            print(constrained_cost)
+            
         return constrained_cost
+    
+    def l1_constrained_cost(self, agent):
 
-    def partial_cost(self,  agent):
+        v = agent.memory['v']
 
-        delta = 1e-4
-        cost = self.cost_function(agent)
-        agent.memory['estimate'][agent.id] += delta
-        cost_hat = self.cost_function(agent)
-        agent.memory['estimate'][agent.id] -= delta
+        constrained_sum = -2
 
-        return cost_hat - cost / delta
+        constrained_cost = 0
+
+        for id, status in agent.memory['estimate'].items():
+
+            constrained_sum += v[id] * status
+
+        if constrained_sum <= 0:
+            constrained_cost = 0
+        else:
+            constrained_cost += v[agent.id]
+
+        if agent.memory['estimate']['3'] + agent.memory['estimate']['4'] > 10:
+            if agent.id == '3' or agent.id == '4':
+                constrained_cost = constrained_cost + 1
+        
+        if agent.memory['estimate'][agent.id] < 0 :
+            constrained_cost = constrained_cost - 1
+
+        if constrained_cost > 0:            
+            print(constrained_cost)
+            
+        return constrained_cost
 
     def status_update_function(self, agent):
 
-        k = 1e-10
-        alpha = 0
+        k = agent.memory['k']
+        alpha = agent.memory['alpha']
         update_value = -k * \
-            self.partial_cost(agent) + alpha * \
-            self.constrained_cost(self, agent)
+            (self.partial_cost(agent) + alpha * \
+            self.l2_constrained_cost(agent))
 
         return update_value
+
+    def estimation_update_function(self, agent):
+
+        update_value = {}
+        w = agent.memory['w']
+
+        for id in agent.memory['n']:
+            update_value[id] = 0
+
+        for in_edge in agent.in_edges:
+            in_agent = in_edge.start_node
+
+            for id, value in in_agent.memory['estimate'].items():
+
+                update_value[id] -= w * (agent.memory['estimate'][id] - value)
+
+            update_value[in_agent.id] -= w * (agent.memory['estimate'][in_agent.id] - \
+                in_agent.memory['status'][in_agent.id])
+
+        return update_value
+
+
+
+class PreConsGame(Game):
+
+    def get_memory_format(self):
+
+        memory_format = {}
+        memory_format['status'] = 1
+        memory_format['estimate'] = 1
+        memory_format['alpha'] = 1
+        memory_format['k'] = 1
+        memory_format['n'] = 1
+        memory_format['e1'] = 1
+        memory_format['e2'] = 1
+        memory_format['v'] = 1
+
+        return memory_format
+
+    def cost_function(self, agent):
+
+        d1 = 3
+        d2 = 0.02
+        e1 = agent.memory['e1']
+        e2 = agent.memory['e2']
+        xi = agent.memory['estimate'][agent.id]
+
+        status_sum = 0
+        for id, status in agent.memory['estimate'].items():
+            status_sum += status
+
+        Ri = (d1 - d2*status_sum)*xi
+
+        if agent.memory['estimate'][agent.id] <= 1:
+            Ti = (e1 + e2*xi)*xi
+        else:
+            Ti = (2*e1 + e2*xi)*xi - 5*e1
+
+        cost = Ti - Ri
+
+        return cost
+
+    
+    def l2_constrained_cost(self, agent):
+
+        v = agent.memory['v']
+
+        constrained_sum = -2
+
+        constrained_cost = 0
+
+        for id, status in agent.memory['estimate'].items():
+
+            constrained_sum += v[id] * status
+
+        if constrained_sum <= 0:
+            constrained_cost = 0
+        else:
+            constrained_cost += 2 * constrained_sum * v[agent.id]
+
+        special_sum = agent.memory['estimate']['3'] + agent.memory['estimate']['4'] - 10
+        if  special_sum >= 0:
+            if agent.id == '3' or agent.id == '4':
+                constrained_cost = constrained_cost + 2 * special_sum
+        
+        if agent.memory['estimate'][agent.id] < 0 :
+            constrained_cost = constrained_cost + 2*agent.memory['estimate'][agent.id]
+            
+        return constrained_cost
+    
+    def l1_constrained_cost(self, agent):
+
+        v = agent.memory['v']
+
+        constrained_sum = -2
+
+        constrained_cost = 0
+
+        for id, status in agent.memory['estimate'].items():
+
+            constrained_sum += v[id] * status
+
+        if constrained_sum <= 0:
+            constrained_cost = 0
+        else:
+            constrained_cost += v[agent.id]
+
+        if agent.memory['estimate']['3'] + agent.memory['estimate']['4'] > 10:
+            if agent.id == '3' or agent.id == '4':
+                constrained_cost = constrained_cost + 1
+        
+        if agent.memory['estimate'][agent.id] < 0 :
+            constrained_cost = constrained_cost - 1
+
+        # if constrained_cost > 0:            
+        #     print(constrained_cost)
+            
+        return constrained_cost
+
+    def status_update_function(self, agent):
+
+        k = agent.memory['k']
+        alpha = agent.memory['alpha']
+        update_value = -k * \
+            (self.partial_cost(agent) + alpha * \
+            self.l2_constrained_cost(agent))
+
+        return update_value
+
 
     def estimation_update_function(self, agent):
 
@@ -259,8 +412,10 @@ class ConstrainedGame(Game):
                 update_value[id] /= -(len(adj_id) + 1)
             else:
                 update_value[id] /= -len(adj_id)
+    
 
         return update_value
+
 
 
 class FixTimeGame(Game):

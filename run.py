@@ -1,6 +1,6 @@
-from config import *
+from games.config import *
 from simulation import GameSimulation, PrescribeSimulation
-from game import PreTimeGame, FixTimeGame, ConstrainedGame
+from games import *
 from graph import Graph
 
 
@@ -19,7 +19,7 @@ def get_model(model_id):
         config_dict = prescribe_time_config
         game_model = PreTimeGame()
         model = PrescribeSimulation()
-        model.set_T(config_dict['global']['Tf'])
+        model.set_T(config_dict['global']['Tf'], config_dict['global']['tao'])
     elif model_id == ModelNames.fixed_time:
         config_dict = fixed_time_config
         game_model = FixTimeGame()
@@ -30,6 +30,11 @@ def get_model(model_id):
         game_model = ConstrainedGame()
         model = GameSimulation()
         model.set_update_time(config_dict['global']['time_delta'])
+    elif model_id == ModelNames.pre_constrained:
+        config_dict = pre_constrained1_config
+        game_model = PreConsGame()
+        model = PrescribeSimulation()
+        model.set_T(config_dict['global']['Tf'], config_dict['global']['tao'])
 
     model.set_graph(Graph.load_matrix(config_dict['global']['matrix']))
     model.epochs = config_dict['global']['epochs']
@@ -41,5 +46,5 @@ def get_model(model_id):
 
 if __name__ == '__main__':
 
-    model = get_model(ModelNames.fixed_time)
+    model = get_model(ModelNames.pre_constrained)
     model.run()

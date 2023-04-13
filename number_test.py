@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from graph import Graph
-
+from config import constrained_config
 
 def test1():
 

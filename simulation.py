@@ -1,6 +1,5 @@
 from graph import Node, Graph
 from agent import Agent
-from game import Game, FixTime, PreTimeConstrained, PreTime
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
@@ -46,6 +45,13 @@ class GameSimulation():
 
         self.graph.nodes = agents
 
+    def centralized(self):
+        
+        for node_id, agent in self.graph.nodes.items():
+            for id in agent.memory['n']:
+                agent.memory['estimate'][id] = self.graph.nodes[id].memory['status'][id]
+        
+    
     def run(self, is_debug=True):
 
         start = time.time()
@@ -53,7 +59,9 @@ class GameSimulation():
         for i in range(self.epochs):
 
             for node_id, agent in self.graph.nodes.items():
+                # self.centralized()
                 agent.update(self.update_time)
+
 
             for node_id, agent in self.graph.nodes.items():
                 if is_debug:
@@ -61,9 +69,9 @@ class GameSimulation():
                 agent.flush()
 
         end = time.time()
-
+        
         print("time: ", end-start)
-
+        
         if is_debug:
             self.show_process()
 
@@ -72,6 +80,8 @@ class GameSimulation():
         simulate_time = []
         simulate_data = {}
 
+        end_status = {}
+        
         colors = list(mcolors.TABLEAU_COLORS.keys())
         for node_id, agent in self.graph.nodes.items():
             simulate_data[node_id] = []
@@ -81,11 +91,15 @@ class GameSimulation():
                 simulate_data[node_id].append(
                     record['status_vector'][node_id][0])
                 simulate_time.append(record['time'])
-
+        
         for i, node_id in enumerate(simulate_data.keys()):
             plt.plot(simulate_time, simulate_data[node_id],
                      color=mcolors.TABLEAU_COLORS[colors[i]], label=node_id)
-
+            
+            end_status[node_id] = simulate_data[node_id][-1]
+        
+        print('end_status: ', end_status)
+        
         plt.legend()
         plt.xlabel('time/s')
         plt.ylabel('status')
@@ -97,9 +111,11 @@ class PrescribeSimulation(GameSimulation):
     def __init__(self):
         super().__init__()
         self.T = 0
+        self.tao = 0
 
-    def set_T(self, T):
+    def set_T(self, T, tao):
         self.T = T
+        self.tao = tao
 
     def run(self, is_debug=True):
 
@@ -107,7 +123,7 @@ class PrescribeSimulation(GameSimulation):
 
         for i in range(self.epochs):
             t = (self.T / ((np.pi*np.pi)/6)) * (1 / ((i+1)**2))
-            t = max(t, 0.0001)
+            t = max(t, self.tao)
             for node_id, agent in self.graph.nodes.items():
                 agent.update(1)
 
