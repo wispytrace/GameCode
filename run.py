@@ -1,16 +1,7 @@
-from games.config import *
 from simulation import GameSimulation, PrescribeSimulation
 from games import *
 from graph import Graph
-
-
-def combine_info(share, private):
-
-    for key, value in share.items():
-        for id, agent in private.items():
-            agent[key] = value
-
-    return private
+from utils import *
 
 
 def get_model(model_id):
@@ -38,7 +29,7 @@ def get_model(model_id):
 
     model.set_graph(Graph.load_matrix(config_dict['global']['matrix']))
     model.epochs = config_dict['global']['epochs']
-    paramas = combine_info(config_dict['share'], config_dict['private'])
+    paramas = combine_dict(config_dict['share'], config_dict['private'])
     model.load_game_model(game_model, paramas)
 
     return model

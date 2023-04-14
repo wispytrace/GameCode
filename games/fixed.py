@@ -1,4 +1,6 @@
 from games.base import Game
+import numpy as np
+
 
 class FixTimeGame(Game):
 
