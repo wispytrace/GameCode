@@ -1,6 +1,11 @@
 from games.base import Game
 
-class ConstrainedGame(Game):
+
+# ConstrainedGameA: Continuous-Time Penalty Methods for Nash Equilibrium Seeking of a Nonsmooth Generalized Noncooperative Game
+
+
+
+class ConstrainedGameA(Game):
 
     def get_memory_format(self):
 

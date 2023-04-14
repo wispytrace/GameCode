@@ -3,17 +3,17 @@ import enum
 
 class ModelNames(enum.Enum):
 
-    prescibe_time = 1
+    PreTimeGameA = 1
     
-    fixed_time = 2
+    FixTimeGameA = 2
     
-    constrained = 3
+    ConstrainedGameA = 3
     
-    pre_constrained1 = 4
-    pre_constrained2 = 5
+    PreConsGameAA = 4
+    PreConsGameAB = 5
 
 
-prescribe_time_config = {
+ptg_a_config = {
 
     'global': {
         'matrix': [[0, 0, 0, 0, 1], [1, 0, 0, 0, 1], [0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 0]],
@@ -36,7 +36,7 @@ prescribe_time_config = {
     }
 }
 
-fixed_time_config = {
+ftg_a_config = {
 
     'global': {
         'matrix': [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],
@@ -56,7 +56,7 @@ fixed_time_config = {
     }
 }
 
-constrained_config = {
+cg_a_config = {
 
 
     'global': {
@@ -84,7 +84,7 @@ constrained_config = {
 
 }
 
-pre_constrained1_config = {
+ptcg_aa_config = {
 
 
     'global': {
@@ -113,31 +113,31 @@ pre_constrained1_config = {
 
 }
 
-pre_constrained2_config = {
+ptcg_ab_config = {
 
 
     'global': {
-        'matrix': [[1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1]],
-        'epochs': 3000,
+        'matrix': [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]],
+        'epochs': 100000,
         'Tf': 1,
-        'tao': 3e-4
+        'tao': 1e-5
     },
 
     'share': {
-        'v': {'0': 0.091, '1': 0.161, '2': 0.221, '3': 0.1, '4': 0.242, '5': 0.385},
-        'n': ['0', '1', '2', '3', '4', '5'],
-        'alpha': 50,
-        'k': 0.008,
-        'w': 1
+        'c': 180,
+        'a': 0.02,
+        'b': 2.5,
+        'n': ['0', '1', '2', '3', '4'],
+        'alpha': 1000,
+        'k': 0.0001,
     },
 
     'private': {
-        '0': {'e1': 0.56, 'e2': 0.075},
-        '1': {'e1': 1.37, 'e2': 0.15},
-        '2': {'e1': 1.75, 'e2': 0.2},
-        '3': {'e1': 1, 'e2': 0.1},
-        '4': {'e1': 1.5, 'e2': 0.2},
-        '5': {'e1': 2, 'e2': 0.3},
+        '0': {'u': 80, 'l': 0, 'r': 50},
+        '1': {'u': 80, 'l': 0, 'r': 55},
+        '2': {'u': 80, 'l': 0, 'r': 60},
+        '3': {'u': 80, 'l': 0, 'r': 65},
+        '4': {'u': 80, 'l': 0, 'r': 70},
     }
 
 }

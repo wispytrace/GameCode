@@ -1,6 +1,14 @@
 from games.base import Game
 
-class PreTimeGame(Game):
+
+#
+# PreTimeGameA: Appointed-time Distributed Nash Equilibrium Seeking for Networked Games
+# PreConsGameAA: Continuous-Time Penalty Methods for Nash Equilibrium Seeking of a Nonsmooth Generalized Noncooperative Game
+# PreConsGameAB: 
+#
+
+
+class PreTimeGameA(Game):
 
     def get_memory_format(self):
 
@@ -27,19 +35,19 @@ class PreTimeGame(Game):
 
         return cost
 
-    def partial_cost(self, agent):
+    # def partial_cost(self, agent):
 
-        p_i = agent.memory['p']
+    #     p_i = agent.memory['p']
 
-        status_sum = 0
-        for id, status in agent.memory['estimate'].items():
-            status_sum += status
+    #     status_sum = 0
+    #     for id, status in agent.memory['estimate'].items():
+    #         status_sum += status
 
-        x_i = agent.memory['estimate'][agent.id]
+    #     x_i = agent.memory['estimate'][agent.id]
 
-        partial_cost = 2*(x_i - p_i) + (0.1*status_sum + 10) + x_i*0.1
+    #     partial_cost = 2*(x_i - p_i) + (0.1*status_sum + 10) + x_i*0.1
         
-        return partial_cost
+    #     return partial_cost
 
     def status_update_function(self, agent):
 
@@ -81,7 +89,7 @@ class PreTimeGame(Game):
 
 
 
-class PreConsGame(PreTimeGame):
+class PreConsGameAA(PreTimeGameA):
 
     def get_memory_format(self):
 
@@ -184,5 +192,80 @@ class PreConsGame(PreTimeGame):
         update_value = -k * \
             (self.partial_cost(agent) + alpha * \
             self.l2_constrained_cost(agent))
+
+        return update_value
+
+class PreConsGameAB(PreTimeGameA):
+    
+    
+    def get_memory_format(self):
+
+        memory_format = {}
+        memory_format['status'] = 1
+        memory_format['estimate'] = 1
+        memory_format['alpha'] = 1
+        memory_format['k'] = 1
+        memory_format['n'] = 1
+        memory_format['e1'] = 1
+        memory_format['e2'] = 1
+        memory_format['v'] = 1
+
+        return memory_format
+
+    def cost_function(self, agent):
+
+        a = agent.memory['a']
+        b = agent.memory['b']
+        xi = agent.memory['estimate'][agent.id]
+        xr = agent.memory['r']
+                
+        status_sum = 0
+        for id, status in agent.memory['estimate'].items():
+            status_sum += status
+            
+        Pi = a * status_sum + b
+        
+        cost = (xi - xr)**2 + xi * Pi
+
+        return cost
+
+    
+    def l2_constrained_cost(self, agent):
+
+        u = agent.memory['u']
+        l = agent.memory['l']
+        c = agent.memory['c']
+        xi = agent.memory['estimate'][agent.id]
+        
+        constrained_cost = 0
+        
+        status_sum = 0
+        for id, status in agent.memory['estimate'].items():
+            status_sum += status
+            
+        if status_sum > c:
+            constrained_cost += 2 * (status_sum - c)
+
+        if xi > u:
+            constrained_cost += 2 * (xi - u)
+        
+        if xi < l:
+            
+            constrained_cost += 2 * (xi - l)
+            
+        
+        return constrained_cost
+    
+    def status_update_function(self, agent):
+
+        k = agent.memory['k']
+        alpha = agent.memory['alpha']
+        
+        cost1 = self.partial_cost(agent)
+        cost2 = self.l2_constrained_cost(agent)
+        update_value = -k * \
+            (cost1 + alpha * \
+            cost2)
+        print(cost1, alpha * cost2)
 
         return update_value

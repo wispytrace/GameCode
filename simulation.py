@@ -125,6 +125,7 @@ class PrescribeSimulation(GameSimulation):
             t = (self.T / ((np.pi*np.pi)/6)) * (1 / ((i+1)**2))
             t = max(t, self.tao)
             for node_id, agent in self.graph.nodes.items():
+                # self.centralized()
                 agent.update(1)
 
             for node_id, agent in self.graph.nodes.items():

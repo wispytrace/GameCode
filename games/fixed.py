@@ -2,7 +2,7 @@ from games.base import Game
 import numpy as np
 
 
-class FixTimeGame(Game):
+class FixTimeGameA(Game):
 
     def get_memory(self, agent, init_memory=None):
 

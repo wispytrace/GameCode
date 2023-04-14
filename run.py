@@ -6,24 +6,29 @@ from utils import *
 
 def get_model(model_id):
 
-    if model_id == ModelNames.prescibe_time:
-        config_dict = prescribe_time_config
-        game_model = PreTimeGame()
+    if model_id == ModelNames.PreTimeGameA:
+        config_dict = ptg_a_config
+        game_model = PreTimeGameA()
         model = PrescribeSimulation()
         model.set_T(config_dict['global']['Tf'], config_dict['global']['tao'])
-    elif model_id == ModelNames.fixed_time:
-        config_dict = fixed_time_config
-        game_model = FixTimeGame()
+    elif model_id == ModelNames.FixTimeGameA:
+        config_dict = ftg_a_config
+        game_model = FixTimeGameA()
         model = GameSimulation()
         model.set_update_time(config_dict['global']['time_delta'])
-    elif model_id == ModelNames.constrained:
-        config_dict = constrained_config
-        game_model = ConstrainedGame()
+    elif model_id == ModelNames.ConstrainedGameA:
+        config_dict = cg_a_config
+        game_model = ConstrainedGameA()
         model = GameSimulation()
         model.set_update_time(config_dict['global']['time_delta'])
-    elif model_id == ModelNames.pre_constrained:
-        config_dict = pre_constrained1_config
-        game_model = PreConsGame()
+    elif model_id == ModelNames.PreConsGameAA:
+        config_dict = ptcg_aa_config
+        game_model = PreConsGameAA()
+        model = PrescribeSimulation()
+        model.set_T(config_dict['global']['Tf'], config_dict['global']['tao'])
+    elif model_id == ModelNames.PreConsGameAB:
+        config_dict = ptcg_ab_config
+        game_model = PreConsGameAB()
         model = PrescribeSimulation()
         model.set_T(config_dict['global']['Tf'], config_dict['global']['tao'])
 
@@ -37,5 +42,5 @@ def get_model(model_id):
 
 if __name__ == '__main__':
 
-    model = get_model(ModelNames.pre_constrained)
+    model = get_model(ModelNames.PreConsGameAB)
     model.run()
