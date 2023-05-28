@@ -31,6 +31,11 @@ def get_model(model_id):
         game_model = PreConsGameAB()
         model = PrescribeSimulation()
         model.set_T(config_dict['global']['Tf'], config_dict['global']['tao'])
+    elif model_id == ModelNames.FixConsGameAA:
+        config_dict = ftg_aa_config
+        game_model = FixConsGameAA()
+        model = GameSimulation()
+        model.set_update_time(config_dict['global']['time_delta'])
 
     model.set_graph(Graph.load_matrix(config_dict['global']['matrix']))
     model.epochs = config_dict['global']['epochs']
@@ -42,5 +47,5 @@ def get_model(model_id):
 
 if __name__ == '__main__':
 
-    model = get_model(ModelNames.PreConsGameAB)
+    model = get_model(ModelNames.FixConsGameAA)
     model.run()

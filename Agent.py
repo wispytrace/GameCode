@@ -34,7 +34,7 @@ class Agent(object):
                 self.memory_updated['estimate'][id] = np.zeros(
                     self.game.get_memory_format()['estimate'])
             self.memory_updated['estimate'][id] += value * time_delta
-
+        
     def flush(self):
 
         self.memory['status'] = self.memory_updated['status']

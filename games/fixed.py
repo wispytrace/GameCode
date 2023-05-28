@@ -143,22 +143,133 @@ class FixTimeGameA(Game):
 
         return update_value
 
-    # def batch_update(graph, time_delta, epochs, is_debug=True):
+class FixConsGameAA(Game):
+    
+        
+    def get_memory_format(self):
 
-    #     id_index = {}
-    #     n = len(graph.nodes)
-    #     status_vector = np.zeros(n, FixTime.get_memory_format['status'])
-    #     estimation_vector = np.zeros(n*n, FixTime.get_memory_format['estimate'])
-    #     for i, id in enumerate(graph.nodes.keys()):
-    #         id_index[id] = i
+        memory_format = {}
+        memory_format['status'] = 1
+        memory_format['estimate'] = 1
+        memory_format['alpha'] = 1
+        memory_format['u'] = 1
+        memory_format['l'] = 1
+        memory_format['c'] = 1
+        memory_format['n'] = 1
 
-    #     for id, agent in graph.nodes.items():
-    #         status_vector[id_index[id], 0] = agent.memory['status'][id]
-    #         for agent_id, value in agent.memory['estimate']:
-    #             estimation_vector[id_index[id]*n + id_index[agent_id], 0] = value
+        return memory_format
 
-    #     laplapian_matrix = graph.export_laplapian_matrix()
-    #     M_matrix = np.zeros(n*n, n*n)
-    #     for i in range(n):
-    #         for j in range(n):
-    #             M_matrix[i*n+j, i*n+j] = laplapian_matrix[i, j]
+    def cost_function(self, agent):
+
+        a = agent.memory['a']
+        b = agent.memory['b']
+        xi = agent.memory['estimate'][agent.id]
+        xr = agent.memory['r']
+                
+        status_sum = 0
+        for id, status in agent.memory['estimate'].items():
+            status_sum += status
+            
+        Pi = a * status_sum + b
+        
+        cost = (xi - xr)**2 + xi * Pi
+
+        return cost
+
+
+    def l1_constrained_cost(self, agent):
+
+        u = agent.memory['u']
+        l = agent.memory['l']
+        c = agent.memory['c']
+        xi = agent.memory['estimate'][agent.id]
+        
+        constrained_cost = 0
+        
+        status_sum = 0
+        for id, status in agent.memory['estimate'].items():
+            status_sum += status
+            
+        if status_sum > c:
+            constrained_cost += 1
+
+        if xi > u:
+            constrained_cost += 1
+        
+        if xi < l:
+            
+            constrained_cost += -1
+            
+        
+        return constrained_cost
+    
+    def status_update_function(self, agent):
+        
+        p = 0.5
+        q = 1.5
+
+        delta = agent.memory['delta']
+        eta = agent.memory['eta']
+        epsilon = agent.memory['epsilon']
+        epsilon = 0
+        alpha = agent.memory['alpha']
+
+        partial_value = self.partial_cost(agent)[0] + alpha * self.l1_constrained_cost(agent)
+
+        sign = None
+        if partial_value > 0:
+            sign = 1
+        else:
+            sign = -1
+
+        partial_value_fabs = np.fabs(partial_value)
+
+        update_value = -(sign*delta*np.power(partial_value_fabs, p) + sign *
+                         eta*np.power(partial_value_fabs, q) + sign*epsilon*partial_value_fabs)
+        
+        if agent.id == '0':
+            print(update_value*3e-6)
+
+        return update_value
+
+    def estimation_update_function(self, agent):
+
+        p = 0.5
+        q = 1.5
+
+        update_value = {}
+        for in_edge in agent.in_edges:
+            in_agent = in_edge.start_node
+            for id, value in in_agent.memory['estimate'].items():
+                if id not in update_value.keys():
+                    update_value[id] = 0
+
+                if id in agent.memory['estimate'].keys():
+                    update_value[id] += agent.memory['estimate'][id] - value
+                else:
+                    update_value[id] += -value
+                    agent.memory['estimate'][id] = 0
+
+            update_value[in_agent.id] += agent.memory['estimate'][in_agent.id] - \
+                in_agent.memory['status'][in_agent.id]
+
+        delta = agent.memory['delta']
+        eta = agent.memory['eta']
+        gama = agent.memory['gama']
+
+        for id, value in update_value.items():
+
+            update_value_fabs = np.fabs(value)
+            sign = None
+
+            if update_value[id] > 0:
+                sign = 1
+            else:
+                sign = -1
+
+            update_value[id] = -1*sign*(delta*np.power(update_value_fabs, p) + eta*np.power(
+                update_value_fabs, q) + gama*update_value_fabs)
+        
+        if agent.id == '0':
+            print('estimate', update_value[agent.id]*3e-6)
+        return update_value

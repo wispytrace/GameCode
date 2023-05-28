@@ -198,6 +198,8 @@ class PreConsGameAA(PreTimeGameA):
 class PreConsGameAB(PreTimeGameA):
     
     
+    
+    
     def get_memory_format(self):
 
         memory_format = {}

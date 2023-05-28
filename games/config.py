@@ -5,12 +5,15 @@ class ModelNames(enum.Enum):
 
     PreTimeGameA = 1
     
+    PreConsGameAA = 11
+    PreConsGameAB = 12
+    
     FixTimeGameA = 2
+    FixConsGameAA = 21
     
     ConstrainedGameA = 3
     
-    PreConsGameAA = 4
-    PreConsGameAB = 5
+
 
 
 ptg_a_config = {
@@ -53,6 +56,35 @@ ftg_a_config = {
         '1': {'delta': 4, 'eta': 2, 'gama': 20, 'epsilon': 2, 'p': 2, 'q': 5.5},
         '2': {'delta': 3, 'eta': 1, 'gama': 20, 'epsilon': 1, 'p': 1, 'q': 6},
         '3': {'delta': 6, 'eta': 3, 'gama': 20, 'epsilon': 3, 'p': 2, 'q': 11}
+    }
+}
+
+ftg_aa_config = {
+
+    'global': {
+        'matrix': [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]],
+        'epochs': 10000,
+        'time_delta': 3e-5
+    },
+
+    'share': {
+        'c': 180,
+        'a': 0.02,
+        'b': 2.5,
+        'n': ['0', '1', '2', '3', '4'],
+        'alpha': 100,
+        'l': 0,
+        'u': 80,
+        'gama': 5000
+    },
+
+
+    'private': {
+        '0': {'delta': 4, 'eta': 1, 'epsilon': 3, 'r':50},
+        '1': {'delta': 4, 'eta': 2, 'epsilon': 3, 'r': 55},
+        '2': {'delta': 3, 'eta': 1, 'epsilon': 3, 'r': 60},
+        '3': {'delta': 6, 'eta': 3, 'epsilon': 3, 'r': 65},
+        '4': {'delta': 6, 'eta': 3, 'epsilon': 3, 'r': 70},
     }
 }
 

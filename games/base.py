@@ -34,7 +34,7 @@ class Game:
     
     def partial_cost(self, agent):
         
-        delta = 1e-8
+        delta = 1e-10
         cost = self.cost_function(agent)
         agent.memory['estimate'][agent.id] += delta
         cost_hat = self.cost_function(agent)
