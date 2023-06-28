@@ -1,7 +1,7 @@
 import scipy.special as sp
 import numpy as np
 from graph import Graph
-
+from sympy import symbols, diff
 def combine_dict(share, private):
 
     for key, value in share.items():
@@ -48,36 +48,97 @@ def get_settle_time_equilibrium(p, q, delta, eta, m):
     print(get_settle_time2013(p_hat, q_hat, alpha, beta))
     print(get_settle_time_2019(p_hat, q_hat, alpha, beta))
 
-def get_eigenvalue_from_matrix(matrix):
+def get_eigenvalue_from_matrix():
 
-    matrix = [[1, 1, 0, 0, 0], [0, 1, 1, 0, 0], [
-        0, 0, 1, 1, 0], [0, 0, 0, 1, 1], [1, 0, 0, 0, 1]]
+    N = 3
+    matrix = [[0, 1, 0], [1, 0, 1], [1, 0, 0]]
     graph = Graph.load_matrix(matrix)
     laplapian_matrix = graph.export_laplapian_matrix()
     print(laplapian_matrix)
-    eigenvalue, feature = np.linalg.eig(laplapian_matrix.T)
-    print("laplabian:  ")
+    I_matrix = np.eye(N)
+    L_otimics_I = np.kron(laplapian_matrix, I_matrix)
+    M_matrix = np.zeros((N*N, N*N))
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            if matrix[i][j] > 0:
+                    M_matrix[int(i*N+j)][int(i*N+j)] = 1
+    
+    P = L_otimics_I + M_matrix
+    print(P)
+    print(P.T)
+    inv_p = np.linalg.inv(P.T)
+    E = np.matmul(inv_p,P)
+    print(E)
+    eigenvalue, feature = np.linalg.eig((E+E.T)/2)
     print(eigenvalue)
-    print(feature)
-    n = len(graph.nodes)
-    diga_matrix = np.zeros((n, n))
-    for i in range(n):
-        print(type(eigenvalue[i]))
-        if np.abs(eigenvalue[i]) < 1e-4:
-            for j in range(n):
-                diga_matrix[j][j] = -feature[j, i]
-    print("diagmatrix:   ")
-    print(diga_matrix)
-    EL_matrix = np.matmul(diga_matrix, laplapian_matrix)
-    print(EL_matrix)
-    eigenvalue, feature = np.linalg.eig(EL_matrix)
-    print("EL:  ")
-    print(eigenvalue)
-    print(feature)
+    alhpa = 0.5
+    x1,x2,x3,x4,x5,x6,x7,x8,x9 = symbols('x1,x2,x3,x4,x5,x6,x7,x8,x9')
+    f = 
+    # for epoch in range(1000):
+    #     x = np.random.uniform(-1, 1, N*N)
+    #     y = np.matmul(P, x)
+    #     for i in range(N*N):
+    #         if y[i] < 0:
+    #             y[i] = - np.power(np.fabs(y[i]), 0.5)
+    #         else:
+    #             y[i] = np.power(np.fabs(y[i]), 0.5)
+        
+    #     x_T = np.matmul(P.T, x)
+
+    #     print(x_T)
+    #     print(y)
+    #     results = np.matmul(x_T.T, y)
+    #     results += np.matmul(np.matmul(P, x).T, y)
+    #     print(results)
+    #     if results < 0:
+    #         print("find negative!")
+    #         return
+
+
+    # eigenvalue, feature = np.linalg.eig(laplapian_matrix.T)
+    # print("laplabian:  ")
+    # print(eigenvalue)
+    # print(feature)
+    # n = len(graph.nodes)
+    # diga_matrix = np.zeros((n, n))
+    # for i in range(n):
+    #     print(type(eigenvalue[i]))
+    #     if np.abs(eigenvalue[i]) < 1e-4:
+    #         for j in range(n):
+    #             diga_matrix[j][j] = -feature[j, i]
+    # print("diagmatrix:   ")
+    # print(diga_matrix)
+    # EL_matrix = np.matmul(diga_matrix, laplapian_matrix)
+    # print(EL_matrix)
+    # eigenvalue, feature = np.linalg.eig(EL_matrix)
+    # print("EL:  ")
+    # print(eigenvalue)
+    # print("feature")
+    # print(feature)
 
     # graph.draw_graph()
 
 
+def test_positive():
+    L = [[1,0,0,-1],
+         [-1,1,0,0],
+         [0,-1,1,0],
+         [0,0,-1,1]]
+    L = np.matrix(L)
+    matrix = np.matmul(L+L.T, L)
+    matrix = [
+        [3,-2,1,-2],
+        [-2,3,-2,1],
+        [1,-2,3,-2],
+        [-2,1,-2,3]
+    ]
+    matrix = np.matrix(matrix)
+    eigenvalue, feature = np.linalg.eig(matrix)
+    print(eigenvalue)
+    print(feature)
+
+
 # print(get_settle_time2013(0.5, 1.5, 2, 2))
-get_settle_time_equilibrium(0.5, 1.5, 2, 2, 0.5)
-get_eigenvalue_from_matrix(None)
+# get_settle_time_equilibrium(0.5, 1.5, 2, 2, 0.5)
+# get_eigenvalue_from_matrix(None)
+get_eigenvalue_from_matrix()
