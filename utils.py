@@ -48,10 +48,9 @@ def get_settle_time_equilibrium(p, q, delta, eta, m):
     print(get_settle_time2013(p_hat, q_hat, alpha, beta))
     print(get_settle_time_2019(p_hat, q_hat, alpha, beta))
 
-def get_eigenvalue_from_matrix():
+def get_eigenvalue_from_matrix(matrix):
 
-    N = 3
-    matrix = [[0, 1, 0], [1, 0, 1], [1, 0, 0]]
+    N = len(matrix)
     graph = Graph.load_matrix(matrix)
     laplapian_matrix = graph.export_laplapian_matrix()
     print(laplapian_matrix)
@@ -64,16 +63,19 @@ def get_eigenvalue_from_matrix():
                     M_matrix[int(i*N+j)][int(i*N+j)] = 1
     
     P = L_otimics_I + M_matrix
+    eigenvalue, feature = np.linalg.eig((P+P.T)/2)
     print(P)
-    print(P.T)
-    inv_p = np.linalg.inv(P.T)
-    E = np.matmul(inv_p,P)
-    print(E)
-    eigenvalue, feature = np.linalg.eig((E+E.T)/2)
     print(eigenvalue)
-    alhpa = 0.5
-    x1,x2,x3,x4,x5,x6,x7,x8,x9 = symbols('x1,x2,x3,x4,x5,x6,x7,x8,x9')
-    f = 
+    return eigenvalue
+    # print(P)
+    # print(P.T)
+    # inv_p = np.linalg.inv(P.T)
+    # E = np.matmul(inv_p,P)
+    # print(E)
+    # eigenvalue, feature = np.linalg.eig((E+E.T)/2)
+    # print(eigenvalue)
+    # alhpa = 0.5
+
     # for epoch in range(1000):
     #     x = np.random.uniform(-1, 1, N*N)
     #     y = np.matmul(P, x)
@@ -118,27 +120,26 @@ def get_eigenvalue_from_matrix():
 
     # graph.draw_graph()
 
-
-def test_positive():
-    L = [[1,0,0,-1],
-         [-1,1,0,0],
-         [0,-1,1,0],
-         [0,0,-1,1]]
-    L = np.matrix(L)
-    matrix = np.matmul(L+L.T, L)
-    matrix = [
-        [3,-2,1,-2],
-        [-2,3,-2,1],
-        [1,-2,3,-2],
-        [-2,1,-2,3]
-    ]
-    matrix = np.matrix(matrix)
-    eigenvalue, feature = np.linalg.eig(matrix)
-    print(eigenvalue)
-    print(feature)
-
+def get_directed_consensus():
+    
+    matrix = [[0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1], [1, 0, 0, 0, 0]]
+    N = len(matrix)
+    beta = 2
+    alpha = 2
+    p = 0.5
+    q = 1/p
+    min_eigenvalue = min(get_eigenvalue_from_matrix(matrix))
+    k2 = (alpha/(p+1))**(2*p/(p+1)) + (beta/(q+1))**(2*p/(q+1)) + (2**((q-1)/(q+1)))*(alpha/(p+1))**(2*q/(q+1))+ (2**((q-1)/(q+1)))*(beta/(q+1))**(2*q/(q+1))
+    k3 = min((alpha**2)*(N**(1-2*p))/k2, (beta**2)*(N**(1-2*q))/k2)
+    print(min_eigenvalue, k2, k3)
+    
+    return 0.5*k3*min_eigenvalue
 
 # print(get_settle_time2013(0.5, 1.5, 2, 2))
 # get_settle_time_equilibrium(0.5, 1.5, 2, 2, 0.5)
 # get_eigenvalue_from_matrix(None)
-get_eigenvalue_from_matrix()
+# get_eigenvalue_from_matrix()
+answer = get_directed_consensus()
+t1 = get_settle_time2013(0.5, 2, answer, answer)
+t2 = get_settle_time_2019(0.5, 2, answer, answer)
+print(t1, t2)

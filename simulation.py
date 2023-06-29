@@ -103,6 +103,7 @@ class GameSimulation():
         plt.legend()
         plt.xlabel('time/s')
         plt.ylabel('status')
+        plt.savefig("result.jpeg")
         plt.show()
 
 

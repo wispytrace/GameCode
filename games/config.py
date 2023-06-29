@@ -62,9 +62,9 @@ ftg_a_config = {
 ftg_aa_config = {
 
     'global': {
-        'matrix': [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]],
-        'epochs': 10000,
-        'time_delta': 3e-5
+        'matrix': [[0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1], [1, 0, 0, 0, 0]],
+        'epochs': 2000000,
+        'time_delta': 5e-8
     },
 
     'share': {
@@ -75,16 +75,16 @@ ftg_aa_config = {
         'alpha': 100,
         'l': 0,
         'u': 80,
-        'gama': 5000
+        'gama': 3000
     },
 
 
     'private': {
-        '0': {'delta': 4, 'eta': 1, 'epsilon': 3, 'r':50},
-        '1': {'delta': 4, 'eta': 2, 'epsilon': 3, 'r': 55},
-        '2': {'delta': 3, 'eta': 1, 'epsilon': 3, 'r': 60},
-        '3': {'delta': 6, 'eta': 3, 'epsilon': 3, 'r': 65},
-        '4': {'delta': 6, 'eta': 3, 'epsilon': 3, 'r': 70},
+        '0': {'delta': 2, 'eta': 2, 'epsilon': 0, 'r':50},
+        '1': {'delta': 2, 'eta': 2, 'epsilon': 0, 'r': 55},
+        '2': {'delta': 2, 'eta': 2, 'epsilon': 0, 'r': 60},
+        '3': {'delta': 2, 'eta': 2, 'epsilon': 0, 'r': 65},
+        '4': {'delta': 2, 'eta': 2, 'epsilon': 0, 'r': 70},
     }
 }
 

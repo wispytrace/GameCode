@@ -227,8 +227,8 @@ class FixConsGameAA(Game):
         update_value = -(sign*delta*np.power(partial_value_fabs, p) + sign *
                          eta*np.power(partial_value_fabs, q) + sign*epsilon*partial_value_fabs)
         
-        if agent.id == '0':
-            print(update_value*3e-6)
+        # if agent.id == '0':
+        #     print(update_value)
 
         return update_value
 
@@ -262,14 +262,17 @@ class FixConsGameAA(Game):
             update_value_fabs = np.fabs(value)
             sign = None
 
-            if update_value[id] > 0:
+            if np.fabs(update_value[id]) < 1e-5:
+                sign = 0
+            elif update_value[id] > 0:
                 sign = 1
             else:
                 sign = -1
 
+
             update_value[id] = -1*sign*(delta*np.power(update_value_fabs, p) + eta*np.power(
-                update_value_fabs, q) + gama*update_value_fabs)
+                update_value_fabs, q)) - gama*sign
         
-        if agent.id == '0':
-            print('estimate', update_value[agent.id]*3e-6)
+        # if agent.id == '0':
+        #     print('estimate', update_value[agent.id]*3e-6)
         return update_value
