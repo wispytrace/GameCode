@@ -64,7 +64,7 @@ ftg_aa_config = {
     'global': {
         'matrix': [[0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1], [1, 0, 0, 0, 0]],
         'epochs': 2000000,
-        'time_delta': 5e-8
+        'time_delta': 5e-7
     },
 
     'share': {

@@ -34,8 +34,12 @@ def get_settle_time2013(p, q, alpha, beta):
     return settle_time
 
 
-def get_settle_time_consesus():
-    pass
+def get_equilibrium_settle(p, q, alpha, beta, m=0.2):
+
+    alpha = 2**((p+1)/2)*alpha*(m**p)
+    beta = 2**((q+1)/2)*beta*(m**q)
+    
+    return p, q, alpha, beta
 
 
 def get_settle_time_equilibrium(p, q, delta, eta, m):
@@ -126,7 +130,7 @@ def get_directed_consensus():
     N = len(matrix)
     beta = 2
     alpha = 2
-    p = 0.5
+    p = 0.9
     q = 1/p
     min_eigenvalue = min(get_eigenvalue_from_matrix(matrix))
     k2 = (alpha/(p+1))**(2*p/(p+1)) + (beta/(q+1))**(2*p/(q+1)) + (2**((q-1)/(q+1)))*(alpha/(p+1))**(2*q/(q+1))+ (2**((q-1)/(q+1)))*(beta/(q+1))**(2*q/(q+1))
@@ -139,7 +143,18 @@ def get_directed_consensus():
 # get_settle_time_equilibrium(0.5, 1.5, 2, 2, 0.5)
 # get_eigenvalue_from_matrix(None)
 # get_eigenvalue_from_matrix()
+p = 0.9
+q = 1/p
 answer = get_directed_consensus()
-t1 = get_settle_time2013(0.5, 2, answer, answer)
-t2 = get_settle_time_2019(0.5, 2, answer, answer)
+print(answer)
+t1 = get_settle_time2013(2*p/(p+1), 2*q/(q+1), answer, answer)
+t2 = get_settle_time_2019(0.75, 4/3, answer, answer)
+print(t1, t2)
+
+p , q, alpha, beta = get_equilibrium_settle(0.5, 1.5, 2, 2)
+print(p, q, alpha, beta)
+
+t1 = get_settle_time_2019(p, q, alpha, beta)
+t2 = get_settle_time2013(p, q, alpha, beta)
+
 print(t1, t2)
