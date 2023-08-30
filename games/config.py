@@ -14,8 +14,6 @@ class ModelNames(enum.Enum):
     ConstrainedGameA = 3
     
 
-
-
 ptg_a_config = {
 
     'global': {
@@ -63,8 +61,8 @@ ftg_aa_config = {
 
     'global': {
         'matrix': [[0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1], [1, 0, 0, 0, 0]],
-        'epochs': 2000000,
-        'time_delta': 5e-7
+        'epochs': 20000000,
+        'time_delta': 1e-7,
     },
 
     'share': {
@@ -75,7 +73,9 @@ ftg_aa_config = {
         'alpha': 100,
         'l': 0,
         'u': 80,
-        'gama': 3000
+        'p' : 0.5,
+        'q' : 1.5,
+        'gama': 1000
     },
 
 

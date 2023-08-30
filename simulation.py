@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import time
-
+import pickle
 
 class GameSimulation():
 
@@ -75,6 +75,10 @@ class GameSimulation():
         if is_debug:
             self.show_process()
 
+    def save_record_file(self, agent):
+        with open('./records/data_{}.pkl'.format(agent.id), 'wb') as f:
+            pickle.dump(agent.records, f)
+    
     def show_process(self):
 
         simulate_time = []
@@ -91,7 +95,9 @@ class GameSimulation():
                 simulate_data[node_id].append(
                     record['status_vector'][node_id][0])
                 simulate_time.append(record['time'])
-        
+            
+            self.save_record_file(agent)
+
         for i, node_id in enumerate(simulate_data.keys()):
             plt.plot(simulate_time, simulate_data[node_id],
                      color=mcolors.TABLEAU_COLORS[colors[i]], label=node_id)

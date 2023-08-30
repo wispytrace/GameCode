@@ -138,7 +138,7 @@ class Graph:
         img = np.ones((height, width, 3), np.uint8) * 255
         for id, pos in nodes_position.items():
             cv.circle(img, pos, circle_radius, circle_color, 2)
-            cv.putText(img, id, (pos[0]-5, pos[1]+5),
+            cv.putText(img, str(int(id)+1), (pos[0]-5, pos[1]+5),
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 2)
 
         for node_id, node in self.nodes.items():
@@ -156,5 +156,4 @@ class Graph:
 
                 cv.arrowedLine(img, arrow_start, arrow_end, arrow_color, 2)
 
-        cv.imshow('graph', img)
-        cv.waitKey(0)
+        cv.imwrite('./figure/graph.jpeg', img)

@@ -11,6 +11,8 @@ class Agent(object):
         self.game = None
         self.__node = node
         self.records = []
+        self.interval = 50
+        self.count = 0
 
     def set_game(self, game):
 
@@ -44,15 +46,19 @@ class Agent(object):
 
         current_record = {}
 
-        if len(self.records) == 0:
-            current_record['time'] = 0
-        else:
-            current_record['time'] = time_delta + self.records[-1]['time']
+        if self.count % self.interval == 0:
 
-        current_record['status_vector'] = deepcopy(self.memory['status'])
-        current_record['estimate_vector'] = deepcopy(self.memory['estimate'])
+            if len(self.records) == 0:
+                current_record['time'] = 0
+            else:
+                current_record['time'] = time_delta*self.interval + self.records[-1]['time']
 
-        self.records.append(current_record)
+            current_record['status_vector'] = deepcopy(self.memory['status'])
+            current_record['estimate_vector'] = deepcopy(self.memory['estimate'])
+
+            self.records.append(current_record)
+        
+        self.count += 1
 
     # 当在 Proxy 类中搜索不到对应的属性或方法时（调用 __getattribute__ 方法 便会调用 __getattr__ 方法，此时则利用 getattr() 函数获取代理对象的对应方法再返回即可。
     def __getattr__(self, attr):

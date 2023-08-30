@@ -1,1 +1,4 @@
-result.jpeg
+*.jpeg
+log.txt
+*.pkl
+*.pyc

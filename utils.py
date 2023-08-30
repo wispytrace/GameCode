@@ -21,8 +21,6 @@ def get_settle_time_2019(p, q, alpha, beta):
     gama = sp.gamma(mp)*sp.gamma(mq) / (np.power(alpha, k) * sp.gamma(k)* (q-p))
 
     gama = gama * np.power((alpha/beta), mp)
-    
-    settle_time = gama
 
     return gama
 
@@ -67,88 +65,31 @@ def get_eigenvalue_from_matrix(matrix):
                     M_matrix[int(i*N+j)][int(i*N+j)] = 1
     
     P = L_otimics_I + M_matrix
-    eigenvalue, feature = np.linalg.eig((P+P.T)/2)
-    print(P)
-    print(eigenvalue)
+    eigenvalue, feature = np.linalg.eig((P+P.T))
+    print('eigenvalue:', eigenvalue)
     return eigenvalue
-    # print(P)
-    # print(P.T)
-    # inv_p = np.linalg.inv(P.T)
-    # E = np.matmul(inv_p,P)
-    # print(E)
-    # eigenvalue, feature = np.linalg.eig((E+E.T)/2)
-    # print(eigenvalue)
-    # alhpa = 0.5
 
-    # for epoch in range(1000):
-    #     x = np.random.uniform(-1, 1, N*N)
-    #     y = np.matmul(P, x)
-    #     for i in range(N*N):
-    #         if y[i] < 0:
-    #             y[i] = - np.power(np.fabs(y[i]), 0.5)
-    #         else:
-    #             y[i] = np.power(np.fabs(y[i]), 0.5)
-        
-    #     x_T = np.matmul(P.T, x)
-
-    #     print(x_T)
-    #     print(y)
-    #     results = np.matmul(x_T.T, y)
-    #     results += np.matmul(np.matmul(P, x).T, y)
-    #     print(results)
-    #     if results < 0:
-    #         print("find negative!")
-    #         return
-
-
-    # eigenvalue, feature = np.linalg.eig(laplapian_matrix.T)
-    # print("laplabian:  ")
-    # print(eigenvalue)
-    # print(feature)
-    # n = len(graph.nodes)
-    # diga_matrix = np.zeros((n, n))
-    # for i in range(n):
-    #     print(type(eigenvalue[i]))
-    #     if np.abs(eigenvalue[i]) < 1e-4:
-    #         for j in range(n):
-    #             diga_matrix[j][j] = -feature[j, i]
-    # print("diagmatrix:   ")
-    # print(diga_matrix)
-    # EL_matrix = np.matmul(diga_matrix, laplapian_matrix)
-    # print(EL_matrix)
-    # eigenvalue, feature = np.linalg.eig(EL_matrix)
-    # print("EL:  ")
-    # print(eigenvalue)
-    # print("feature")
-    # print(feature)
-
-    # graph.draw_graph()
-
-def get_directed_consensus():
+def get_directed_consensus(p, q, alhpa, beta):
     
     matrix = [[0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1], [1, 0, 0, 0, 0]]
     N = len(matrix)
-    beta = 2
-    alpha = 2
-    p = 0.9
-    q = 1/p
     min_eigenvalue = min(get_eigenvalue_from_matrix(matrix))
-    k2 = (alpha/(p+1))**(2*p/(p+1)) + (beta/(q+1))**(2*p/(q+1)) + (2**((q-1)/(q+1)))*(alpha/(p+1))**(2*q/(q+1))+ (2**((q-1)/(q+1)))*(beta/(q+1))**(2*q/(q+1))
-    k3 = min((alpha**2)*(N**(1-2*p))/k2, (beta**2)*(N**(1-2*q))/k2)
+
+    k2 = (alpha/(p+1))**(2*p/(p+1)) + (beta/(q+1))**(2*p/(p+1)) + (2**((q-1)/(q+1)))*((alpha/(p+1))**(2*q/(q+1)))+ (2**((q-1)/(q+1)))*((beta/(q+1))**(2*q/(q+1)))
+    k3 = min((alpha**2)*((N*N)**(1-2*p))/k2, (beta**2)*((N*N)**(1-2*q))/k2)
     print(min_eigenvalue, k2, k3)
     
     return 0.5*k3*min_eigenvalue
 
-# print(get_settle_time2013(0.5, 1.5, 2, 2))
-# get_settle_time_equilibrium(0.5, 1.5, 2, 2, 0.5)
-# get_eigenvalue_from_matrix(None)
-# get_eigenvalue_from_matrix()
-p = 0.9
-q = 1/p
-answer = get_directed_consensus()
+
+alpha = 2
+beta = 2
+p = 0.5
+q = 1.5
+answer = get_directed_consensus(p, q, alpha, beta)
 print(answer)
 t1 = get_settle_time2013(2*p/(p+1), 2*q/(q+1), answer, answer)
-t2 = get_settle_time_2019(0.75, 4/3, answer, answer)
+t2 = get_settle_time_2019(2*p/(p+1), 2*q/(q+1), answer, answer)
 print(t1, t2)
 
 p , q, alpha, beta = get_equilibrium_settle(0.5, 1.5, 2, 2)

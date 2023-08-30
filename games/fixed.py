@@ -49,6 +49,7 @@ class FixTimeGameA(Game):
         return cost
 
     def cost_function(self, agent):
+
         p = 1
         q = 10.5
         s = 1
@@ -205,13 +206,12 @@ class FixConsGameAA(Game):
     
     def status_update_function(self, agent):
         
-        p = 0.5
-        q = 1.5
+        p = agent.memory['p']
+        q = agent.memory['q']
 
         delta = agent.memory['delta']
         eta = agent.memory['eta']
         epsilon = agent.memory['epsilon']
-        epsilon = 0
         alpha = agent.memory['alpha']
 
         partial_value = self.partial_cost(agent)[0] + alpha * self.l1_constrained_cost(agent)
@@ -234,8 +234,9 @@ class FixConsGameAA(Game):
 
     def estimation_update_function(self, agent):
 
-        p = 0.5
-        q = 1.5
+
+        p = agent.memory['p']
+        q = agent.memory['q']
 
         update_value = {}
         for in_edge in agent.in_edges:
