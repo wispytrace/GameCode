@@ -57,36 +57,6 @@ ftg_a_config = {
     }
 }
 
-ftg_aa_config = {
-
-    'global': {
-        'matrix': [[0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1], [1, 0, 0, 0, 0]],
-        'epochs': 20000000,
-        'time_delta': 1e-7,
-    },
-
-    'share': {
-        'c': 180,
-        'a': 0.02,
-        'b': 2.5,
-        'n': ['0', '1', '2', '3', '4'],
-        'alpha': 100,
-        'l': 0,
-        'u': 80,
-        'p' : 0.5,
-        'q' : 1.5,
-        'gama': 1000
-    },
-
-
-    'private': {
-        '0': {'delta': 2, 'eta': 2, 'epsilon': 0, 'r':50},
-        '1': {'delta': 2, 'eta': 2, 'epsilon': 0, 'r': 55},
-        '2': {'delta': 2, 'eta': 2, 'epsilon': 0, 'r': 60},
-        '3': {'delta': 2, 'eta': 2, 'epsilon': 0, 'r': 65},
-        '4': {'delta': 2, 'eta': 2, 'epsilon': 0, 'r': 70},
-    }
-}
 
 cg_a_config = {
 

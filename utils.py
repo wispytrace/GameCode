@@ -1,7 +1,6 @@
 import scipy.special as sp
 import numpy as np
 from graph import Graph
-from sympy import symbols, diff
 def combine_dict(share, private):
 
     for key, value in share.items():
@@ -69,9 +68,9 @@ def get_eigenvalue_from_matrix(matrix):
     print('eigenvalue:', eigenvalue)
     return eigenvalue
 
-def get_directed_consensus(p, q, alhpa, beta):
+def get_directed_consensus(p, q, alpha, beta):
     
-    matrix = [[0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1], [1, 0, 0, 0, 0]]
+    matrix = [[1, 1, 0, 1, 1], [1, 1, 1, 0, 1], [0, 1, 1, 1, 1], [1, 1, 1, 1, 0], [1, 1, 0, 1, 1]]
     N = len(matrix)
     min_eigenvalue = min(get_eigenvalue_from_matrix(matrix))
 
@@ -82,17 +81,19 @@ def get_directed_consensus(p, q, alhpa, beta):
     return 0.5*k3*min_eigenvalue
 
 
-alpha = 2
-beta = 2
+alpha = 150  
+beta = 150
 p = 0.5
-q = 1.5
+q = 1.4
 answer = get_directed_consensus(p, q, alpha, beta)
 print(answer)
 t1 = get_settle_time2013(2*p/(p+1), 2*q/(q+1), answer, answer)
 t2 = get_settle_time_2019(2*p/(p+1), 2*q/(q+1), answer, answer)
 print(t1, t2)
 
-p , q, alpha, beta = get_equilibrium_settle(0.5, 1.5, 2, 2)
+alpha = 2
+beta = 2
+p , q, alpha, beta = get_equilibrium_settle(p, q, alpha, beta)
 print(p, q, alpha, beta)
 
 t1 = get_settle_time_2019(p, q, alpha, beta)

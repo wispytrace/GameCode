@@ -227,9 +227,6 @@ class FixConsGameAA(Game):
         update_value = -(sign*delta*np.power(partial_value_fabs, p) + sign *
                          eta*np.power(partial_value_fabs, q) + sign*epsilon*partial_value_fabs)
         
-        # if agent.id == '0':
-        #     print(update_value)
-
         return update_value
 
     def estimation_update_function(self, agent):
@@ -254,8 +251,8 @@ class FixConsGameAA(Game):
             update_value[in_agent.id] += agent.memory['estimate'][in_agent.id] - \
                 in_agent.memory['status'][in_agent.id]
 
-        delta = agent.memory['delta']
-        eta = agent.memory['eta']
+        c1 = agent.memory['c1']
+        c2 = agent.memory['c2']
         gama = agent.memory['gama']
 
         for id, value in update_value.items():
@@ -271,9 +268,7 @@ class FixConsGameAA(Game):
                 sign = -1
 
 
-            update_value[id] = -1*sign*(delta*np.power(update_value_fabs, p) + eta*np.power(
+            update_value[id] = -1*sign*(c1*np.power(update_value_fabs, p) + c2*np.power(
                 update_value_fabs, q)) - gama*sign
         
-        # if agent.id == '0':
-        #     print('estimate', update_value[agent.id]*3e-6)
         return update_value

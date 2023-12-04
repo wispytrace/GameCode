@@ -11,7 +11,7 @@ class Agent(object):
         self.game = None
         self.__node = node
         self.records = []
-        self.interval = 50
+        self.interval = 100
         self.count = 0
 
     def set_game(self, game):

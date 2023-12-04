@@ -76,7 +76,7 @@ class GameSimulation():
             self.show_process()
 
     def save_record_file(self, agent):
-        with open('./records/data_{}.pkl'.format(agent.id), 'wb') as f:
+        with open('./records/{}_data_{}.pkl'.format(agent.memory['config_index'], agent.id), 'wb') as f:
             pickle.dump(agent.records, f)
     
     def show_process(self):
@@ -109,7 +109,7 @@ class GameSimulation():
         plt.legend()
         plt.xlabel('time/s')
         plt.ylabel('status')
-        plt.savefig("result.jpeg")
+        plt.savefig("./records/{}_result.jpeg".format(agent.memory['config_index']))
         plt.show()
 
 

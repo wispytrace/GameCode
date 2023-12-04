@@ -2,9 +2,9 @@ from simulation import GameSimulation, PrescribeSimulation
 from games import *
 from graph import Graph
 from utils import *
+import sys
 
-
-def get_model(model_id):
+def get_model(model_id, config_index=0):
 
     if model_id == ModelNames.PreTimeGameA:
         config_dict = ptg_a_config
@@ -32,7 +32,7 @@ def get_model(model_id):
         model = PrescribeSimulation()
         model.set_T(config_dict['global']['Tf'], config_dict['global']['tao'])
     elif model_id == ModelNames.FixConsGameAA:
-        config_dict = ftg_aa_config
+        config_dict = ftg_aa_configs[config_index]
         game_model = FixConsGameAA()
         model = GameSimulation()
         model.set_update_time(config_dict['global']['time_delta'])
@@ -47,5 +47,6 @@ def get_model(model_id):
 
 if __name__ == '__main__':
 
-    model = get_model(ModelNames.FixConsGameAA)
+    config_index = int(sys.argv[1])    
+    model = get_model(ModelNames.FixConsGameAA, config_index)
     model.run()
